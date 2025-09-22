@@ -56,6 +56,18 @@ const routes = [
         meta: { title: 'CryptoCourses | Support', h: 'Поддержка' },
         name: 'support'
     },
+    {
+        path: "/admin/probes",
+        component: adminSupportView,
+        meta: { title: 'CryptoCourses | Probes', h: 'Пробники' },
+        name: 'probes'
+    },
+    {
+        path: "/admin/states",
+        component: adminSupportView,
+        meta: { title: 'CryptoCourses | States', h: 'Статьи' },
+        name: 'states'
+    },
 ]
 
 const router = createRouter({

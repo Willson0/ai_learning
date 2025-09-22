@@ -357,8 +357,8 @@ export default {
                         <i class="fa-regular fa-message"></i>
                     </div>
                     <div class="admin_main_statistics_el_main_title">
-                        <h4>Новости</h4>
-                        <h3>{{ data.logsPerDay }} постов</h3>
+                        <h4>Пробники</h4>
+                        <h3>{{ data.logsPerDay }} пройдено</h3>
                     </div>
                 </div>
                 <div class="admin_main_statistics_el_footer">

@@ -9,6 +9,7 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProbeController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\StatsController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\UserController;
@@ -102,7 +103,11 @@ Route::group(["prefix" => "api"], function () {
         return response()->file($path);
     });
 
+    Route::group(["prefix" => "stats", "middleware" => CheckAdminMiddleware::class], function () {
+        Route::get("/", [StatsController::class, "index"]);
+    });
 
+    Route::post("/admin/login", [AdminController::class, "login"]);
     Route::group(["prefix" => "admin", "middleware" => CheckAdminMiddleware::class], function () {
         Route::get("profile", [AdminController::class, "profile"]);
         Route::post("logout", [AdminController::class, "logout"]);

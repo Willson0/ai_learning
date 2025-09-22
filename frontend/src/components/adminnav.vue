@@ -136,11 +136,6 @@ export default {
                     <i class="fa-solid fa-user"></i>
                     <p>Пользователи</p>
                 </div>
-                <div @click="$router.push('/admin/posts')">
-                    <div v-if="$route.path === '/admin/posts'" class="adminnav_main_nav_main_el_point">&middot;</div>
-                    <i class="fa-solid fa-newspaper"></i>
-                    <p>Новости</p>
-                </div>
                 <div @click="$router.push('/admin/courses')">
                     <div v-if="$route.path === '/admin/courses'" class="adminnav_main_nav_main_el_point">&middot;</div>
                     <i class="fa-solid fa-book"></i>
@@ -155,6 +150,16 @@ export default {
                     <div v-if="$route.path === '/admin/support'" class="adminnav_main_nav_main_el_point">&middot;</div>
                     <i class="fa-solid fa-headset"></i>
                     <p>Поддержка</p>
+                </div>
+                <div @click="$router.push('/admin/probes')">
+                    <div v-if="$route.path === '/admin/probes'" class="adminnav_main_nav_main_el_point">&middot;</div>
+                    <i class="fa-solid fa-file-contract"></i>
+                    <p>Пробники</p>
+                </div>
+                <div @click="$router.push('/admin/states')">
+                    <div v-if="$route.path === '/admin/states'" class="adminnav_main_nav_main_el_point">&middot;</div>
+                    <i class="fa-solid fa-newspaper"></i>
+                    <p>Статьи</p>
                 </div>
             </div>
         </nav>
