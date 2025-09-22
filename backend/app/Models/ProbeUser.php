@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class ProbeUser extends Model
+{
+    protected $guarded = false;
+}
