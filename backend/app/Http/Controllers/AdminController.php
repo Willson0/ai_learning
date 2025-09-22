@@ -19,6 +19,7 @@ use App\Http\Requests\AdminUpdateNewsRequest;
 use App\Http\Requests\AdminUpdateOrderRequest;
 use App\Http\Requests\AdminUpdateTournamentRequest;
 use App\Http\utils;
+use App\Models\Achievement;
 use App\Models\Achievements;
 use App\Models\Admin;
 use App\Models\AdminCookie;
@@ -93,32 +94,6 @@ class AdminController extends Controller
                 })
                 ->values();
         }
-        $user->currencies = Currency::all();
-        try {
-            $response = Http::get('https://api.coingecko.com/api/v3/coins/markets', [
-                'vs_currency' => "usd",
-                'ids' => implode(',', array_column($user->currencies->toArray(), 'coingeckoId')),
-            ]);
-            if ($response->status() === 429) throw new \Exception('Too many requests');
-            Cache::put('currenciesData', $response->json(), now()->addMinutes(5));
-
-            $user->currenciesData = $response->json();
-        } catch (\Exception $e) {
-            if (Cache::has('currenciesData')) $user->currenciesData = Cache::get('currenciesData');
-            else $user->currenciesData = null;
-        }
-        if ($user->currenciesData) {
-            $user->currenciesData = array_map(function ($coin) {
-                return [
-                    'name'        => $coin['name'] ?? null,
-                    'symbol'      => strtoupper($coin['symbol'] ?? ''),
-                    'logo'        => $coin['image'] ?? null,
-                    'price'       => $coin['current_price'] ?? null,
-                    'coingeckoId' => $coin['id'] ?? null,
-                ];
-            }, $user->currenciesData);
-        }
-        $user->crypto = json_decode($user->crypto, true);
 
         return $user;
     }
@@ -135,7 +110,6 @@ class AdminController extends Controller
 
     public function deleteCourse (Course $course) {
         Lesson::where("course_id", $course->id)->delete();
-        Tournament::where("object_id", $course->id)->delete();
         $course->delete();
 
         return $this->courses();
@@ -253,133 +227,14 @@ class AdminController extends Controller
         return $this->courses();
     }
 
-    public function news (Request $request) {
-        $categories = NewsCategory::all();
-        $news = News::all();
-
-        return response()->json(["news" => $news, "categories" => $categories]);
-    }
-
-    public function createNews (AdminCreateNewsRequest $request) {
-        $validate = $request->validated();
-
-        $picture = $request->file("image");
-        $time = time();
-        $url = "news/image_$time" . "." . $picture->extension();
-        Storage::disk("public")->putFileAs("news", $picture, "image_$time" . "." . $picture->extension());
-        $validate["image"] = $url;
-
-        News::create($validate);
-
-        return $this->news($request);
-    }
-
-    public function updateNews (News $news, AdminUpdateNewsRequest $request) {
-        $validate = $request->validated();
-
-        if ($request->has("image")) {
-            Storage::disk("public")->delete($news->image);
-
-            $picture = $request->file("image");
-            $time = time();
-            $url = "news/image_$time" . "." . $picture->extension();
-            Storage::disk("public")->putFileAs("news", $picture, "image_$time" . "." . $picture->extension());
-            $validate["image"] = $url;
-        }
-
-        $news->update($validate);
-        return $this->news($request);
-    }
-
-    public function deleteNews (News $news, Request $request) {
-        Storage::disk("public")->delete($news->image);
-        $news->delete();
-
-        return $this->news($request);
-    }
-
-    public function createNewsCategory (Request $request) {
-        if (!$request->has("name")) abort(400, "Не указано название категории");
-        NewsCategory::create(["name" => $request->name]);
-
-        return $this->news($request);
-    }
-
-    public function deleteNewsCategory (NewsCategory $category, Request $request) {
-        News::where("category_id", $category->id)->delete();
-        $category->delete();
-
-        return $this->news($request);
-    }
-
-    public function updateNewsCategory (NewsCategory $category, adminUpdateNewsCategoryRequest $request) {
-        $validate = $request->validated();
-        $category->update($validate);
-
-        return $this->news($request);
-    }
-
-    public function tournaments () {
-        $tournaments = Tournament::all();
-        $lessons = Course::all();
-        $exams = Lesson::where("count_tries", ">", 0)->get();
-
-        return response()->json(["tournaments" => $tournaments, "lessons" => $lessons, "exams" => $exams]);
-    }
-
-    public function deleteTournament (Tournament $tournament, Request $request) {
-        $tournament->delete();
-        return $this->tournaments();
-    }
-
-    public function updateTournament (Tournament $tournament, AdminUpdateTournamentRequest $request) {
-        $validate = $request->validated();
-        if ($request->has("type")) {
-            if ($validate["type"] === "lesson" && !isset($validate["object_id"]) && $tournament->object_id === 0)
-                abort(400, "Не указан урок");
-            if ($validate["type"] === 'time') $validate["object_id"] = 0;
-        }
-
-        $tournament->update($validate);
-        return $this->tournaments();
-    }
-
-    public function createTournament (AdminCreateTournamentRequest $request) {
-        $validate = $request->validated();
-        if ($validate["type"] === "lesson" && !isset($validate["object_id"])) abort(400, "Не указан урок");
-
-        Tournament::create($validate);
-        return $this->tournaments();
-    }
-
-    public function currencies (Request $request) {
-        return Currency::all();
-    }
-
-    public function updateCurrency (Currency $currency, AdminUpdateCurrencyRequest $request) {
-        $currency->update($request->validated());
-        return $this->currencies($request);
-    }
-
-    public function deleteCurrency (Currency $currency, Request $request) {
-        $currency->delete();
-        return $this->currencies($request);
-    }
-
-    public function createCurrency (AdminCreateCurrencyRequest $request) {
-        Currency::create($request->validated());
-        return $this->currencies($request);
-    }
-
     public function achievements () {
-        return Achievements::all();
+        return Achievement::all();
     }
 
-    public function updateAchievement (Achievements $achievement, AdminUpdateAchievementRequest $request) {
+    public function updateAchievement (Achievement $achievement, AdminUpdateAchievementRequest $request) {
         $validate = $request->validated();
         if ($validate["type"] === "lessons" && $validate["progress"] < 0) abort(400, "Прогресс не может быть меньше 0");
         if ($validate["type"] === "channel" && $validate["progress"][0] != '@') abort(400, "Телеграм канал должен начинаться с символа @");
-        if ($validate["type"] === "tournament" && !Tournament::where("id", $validate["progress"])->exists()) abort(400, "Такого турнира не существует");
 
         if ($request->has("image")) {
             Storage::disk("public")->delete($achievement->image);
@@ -394,7 +249,7 @@ class AdminController extends Controller
         return $this->achievements();
     }
 
-    public function deleteAchievement (Achievements $achievement, Request $request) {
+    public function deleteAchievement (Achievement $achievement, Request $request) {
         Storage::disk("public")->delete($achievement->image);
         $achievement->delete();
         return $this->achievements();
@@ -405,7 +260,6 @@ class AdminController extends Controller
 
         if ($validate["type"] === "lessons" && $validate["progress"] < 0) abort(400, "Прогресс не может быть меньше 0");
         if ($validate["type"] === "channel" && $validate["progress"][0] != '@') abort(400, "Телеграм канал должен начинаться с символа @");
-        if ($validate["type"] === "tournament" && !Tournament::where("id", $validate["progress"])->exists()) abort(400, "Такого турнира не существует");
 
         $picture = $request->file("image");
         $time = time();
@@ -413,48 +267,8 @@ class AdminController extends Controller
         Storage::disk("public")->putFileAs("achievements", $picture, "image_$time" . "." . $picture->extension());
         $validate["image"] = $url;
 
-        Achievements::create($validate);
+        Achievement::create($validate);
         return $this->achievements();
-    }
-
-    public function fiats () {
-        return FiatCurrency::all();
-    }
-
-    public function updateFiat (FiatCurrency $fiat, AdminUpdateFiatRequest $request) {
-        $validate = $request->validated();
-        if ($request->has("image")) {
-            Storage::disk("public")->delete($fiat->image);
-
-            $picture = $request->file("image");
-            $time = time();
-            $url = "fiats/image_$time" . "." . $picture->extension();
-            Storage::disk("public")->putFileAs("fiats", $picture, "image_$time" . "." . $picture->extension());
-            $validate["image"] = $url;
-        }
-        $fiat->update($validate);
-        return $this->fiats();
-    }
-
-    public function deleteFiat (FiatCurrency $fiat, Request $request) {
-        Order::where("fiat_currency_id", $fiat->id)->delete();
-
-        Storage::disk("public")->delete($fiat->image);
-        $fiat->delete();
-        return $this->fiats();
-    }
-
-    public function createFiat (AdminCreateFiatRequest $request) {
-        $validate = $request->validated();
-
-        $picture = $request->file("image");
-        $time = time();
-        $url = "fiats/image_$time" . "." . $picture->extension();
-        Storage::disk("public")->putFileAs("fiats", $picture, "image_$time" . "." . $picture->extension());
-        $validate["image"] = $url;
-
-        FiatCurrency::create($validate);
-        return $this->fiats();
     }
 
     public function supports () {
@@ -523,116 +337,5 @@ class AdminController extends Controller
         } catch (\Exception $e) {}
 
         return $this->supports();
-    }
-
-    public function orders () {
-        return Order::all();
-    }
-
-    public function deleteOrder (Order $order) {
-        $order->delete();
-        return $this->orders();
-    }
-
-    public function updateOrder (Order $order, AdminUpdateOrderRequest $request) {
-        $validate = $request->validated();
-        if (isset($validate["min_limit"]) && isset($validate["max_limit"]))
-            if ($validate["min_limit"] > $validate["max_limit"]) {
-                unset($validate["min_limit"]);
-                unset($validate["max_limit"]);
-            }
-        if ($request->has("user_avatar")) {
-            Storage::disk("public")->delete($order->user_avatar);
-
-            $picture = $request->file("user_avatar");
-            $time = time();
-            $url = "orders/image_$time" . "." . $picture->extension();
-            Storage::disk("public")->putFileAs("orders", $picture, "image_$time" . "." . $picture->extension());
-            $validate["user_avatar"] = $url;
-        }
-        $order->update($validate);
-        return $this->orders();
-    }
-
-    public function createOrder (AdminUpdateOrderRequest $request) {
-        $validate = $request->validated();
-
-        if (isset($validate["min_limit"]) && isset($validate["max_limit"]))
-            if ($validate["min_limit"] > $validate["max_limit"]) {
-                unset($validate["min_limit"]);
-                unset($validate["max_limit"]);
-            }
-
-        $picture = $request->file("user_avatar");
-        $time = time();
-        $url = "orders/image_$time" . "." . $picture->extension();
-        Storage::disk("public")->putFileAs("orders", $picture, "image_$time" . "." . $picture->extension());
-        $validate["user_avatar"] = $url;
-
-        Order::create($validate);
-        return $this->orders();
-    }
-
-    public function whitelist (Request $request) {
-        return Whitelist::all();
-    }
-
-    public function removeWhitelist (WhiteList $whitelist, Request $request) {
-        $whitelist->delete();
-        return $this->whitelist($request);
-    }
-
-    public function updateWhitelist (WhiteList $whitelist, Request $request) {
-        if (!$request->has("value")) abort (400, "Не указано значение");
-        $whitelist->update([
-            "value" => $request->value
-        ]);
-        return $this->whitelist($request);
-    }
-
-    public function addWhitelist (Request $request) {
-        if (!$request->has("value")) abort (400, "Не указано значение");
-        WhiteList::create([
-            "value" => $request->value
-        ]);
-
-        $user = User::where("telegram_id", $request->value)->orWhere("username", $request->value)->first();
-        if ($user) {
-            $caption = ">🎉 *Поздравляем!*
->Вы получили доступ к боту.
-
-*Добро пожаловать в наш бот! 👋*
-
-Здесь вы сможете открыть демо-крипто-счёт, пройти интерактивные курсы и освоить основы работы с криптовалютой
-
-📚 Начните обучение прямо сейчас — первые шаги в мире крипты доступны каждому!";
-            $escape_chars = ['[', ']', '(', ')', '~', '`', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
-            foreach ($escape_chars as $char) {
-                $caption = str_replace($char, '\\' . $char, $caption);
-            }
-
-            try {
-                Telegram::sendPhoto([
-                    'chat_id' => $user->telegram_id,
-                    'caption' => $caption,
-                    'parse_mode' => 'MarkdownV2',
-                    "photo" => InputFile::create(Storage::disk("public")->path("whitelist_message.jpg")),
-                    "reply_markup" => json_encode([
-                        "inline_keyboard" => [
-                            [
-                                [
-                                    "text" => "Открыть веб-приложение",
-                                    "web_app" => [
-                                        "url" => "https://" . env("DOMAIN")
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ])
-                ]);
-            } catch (\Exception $e) {}
-        }
-
-        return $this->whitelist($request);
     }
 }

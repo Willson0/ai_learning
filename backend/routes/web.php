@@ -121,58 +121,16 @@ Route::group(["prefix" => "api"], function () {
             Route::post('{lesson}', [AdminController::class, 'updateLesson']);
             Route::delete('{lesson}', [AdminController::class, 'deleteLesson']);
         });
-        Route::prefix('news')->group(function () {
-            Route::get('/', [AdminController::class, 'news']);
-            Route::post('/', [AdminController::class, 'createNews']);
-            Route::post('{news}', [AdminController::class, 'updateNews']);
-            Route::delete('{news}', [AdminController::class, 'deleteNews']);
-
-            Route::prefix('category')->group(function () {
-                Route::post('/', [AdminController::class, 'createNewsCategory']);
-                Route::post('{category}', [AdminController::class, 'updateNewsCategory']);
-                Route::delete('{category}', [AdminController::class, 'deleteNewsCategory']);
-            });
-        });
-        Route::prefix('tournaments')->group(function () {
-            Route::get('/', [AdminController::class, 'tournaments']);
-            Route::post('/', [AdminController::class, 'createTournament']);
-            Route::post('{tournament}', [AdminController::class, 'updateTournament']);
-            Route::delete('{tournament}', [AdminController::class, 'deleteTournament']);
-        });
-        Route::prefix('currencies')->group(function () {
-            Route::get('/', [AdminController::class, 'currencies']);
-            Route::post('/', [AdminController::class, 'createCurrency']);
-            Route::post('{currency}', [AdminController::class, 'updateCurrency']);
-            Route::delete('{currency}', [AdminController::class, 'deleteCurrency']);
-        });
         Route::prefix('achievements')->group(function () {
             Route::get('/', [AdminController::class, 'achievements']);
             Route::post('/', [AdminController::class, 'createAchievement']);
             Route::post('{achievement}', [AdminController::class, 'updateAchievement']);
             Route::delete('{achievement}', [AdminController::class, 'deleteAchievement']);
         });
-        Route::prefix('fiats')->group(function () {
-            Route::get('/', [AdminController::class, 'fiats']);
-            Route::post('/', [AdminController::class, 'createFiat']);
-            Route::post('{fiat}', [AdminController::class, 'updateFiat']);
-            Route::delete('{fiat}', [AdminController::class, 'deleteFiat']);
-        });
-        Route::prefix('orders')->group(function () {
-            Route::get('/', [AdminController::class, 'orders']);
-            Route::post('/', [AdminController::class, 'createOrder']);
-            Route::post('{order}', [AdminController::class, 'updateOrder']);
-            Route::delete('{order}', [AdminController::class, 'deleteOrder']);
-        });
         Route::prefix('support')->group(function () {
             Route::get('/', [AdminController::class, 'supports']);
             Route::get('/{support}/close', [AdminController::class, 'supportClose']);
             Route::post('/{support}/send', [AdminController::class, 'supportSend']);
-        });
-        Route::prefix('whitelist')->group(function () {
-            Route::get('/', [AdminController::class, 'whitelist']);
-            Route::post('/', [AdminController::class, 'addWhitelist']);
-            Route::post('{whitelist}', [AdminController::class, 'updateWhitelist']);
-            Route::delete('{whitelist}', [AdminController::class, 'removeWhitelist']);
         });
     });
 });
