@@ -17,18 +17,27 @@ export default {
             editIndex: null,
             editForm: {
                 image: '',
-                progress: 0,
-                title: "",
-                type: "",
+                name: "",
+                description: "",
+                parameter: "",
+                value: 0,
             },
             newAchievement: {
                 image: null,    // Сохраняем сам файл
                 preview: '',    // Сюда положим base64-картинку для превью
-                progress: 0,
-                title: "",
-                type: "lessons"
+                name: "",
+                description: "",
+                parameter: "mistake_count",
+                value: 0,
             },
             config: config,
+            options: {
+                "mistake_count": "совершенных ошибок",
+                "repass_count": "перепрохождений уроков",
+                "pass_count": "пройденных уроков",
+                "exam_without_mistakes": "экзаменов без ошибок",
+                "uses_hints": "использованных подсказок"
+            }
         };
     },
     methods: {
@@ -56,12 +65,10 @@ export default {
         async saveEdit(idx) {
             let fd = new FormData();
             if (this.editForm.file) fd.append('image', this.editForm.file);
-            fd.append('progress', this.editForm.progress);
-            fd.append('title', this.editForm.title);
-            fd.append('type', this.editForm.type);
-
-            if (["tournament", "channel"].includes(this.editForm.type))
-                if (!isNaN(Number(this.editForm.progress))) alert("Прогресс должен быть числом!");
+            fd.append('name', this.editForm.name);
+            fd.append('description', this.editForm.description);
+            fd.append('parameter', this.editForm.parameter);
+            fd.append('value', this.editForm.value);
 
             await axios.post(config.backend + 'admin/achievements/' + idx, fd, {withCredentials: true}).then((response) => {
                 this.achievements = response.data;
@@ -111,20 +118,20 @@ export default {
 
             let fd = new FormData();
             fd.append('image', this.newAchievement.image);
-            fd.append('progress', this.newAchievement.progress);
-            fd.append('title', this.newAchievement.title);
-            fd.append('type', this.newAchievement.type);
-
-            if (["tournament", "channel"].includes(this.newAchievement.type))
-                if (isNaN(Number(this.newAchievement.progress))) return alert("Прогресс должен быть числом!");
+            fd.append('name', this.newAchievement.name);
+            fd.append('description', this.newAchievement.description);
+            fd.append('parameter', this.newAchievement.parameter);
+            fd.append('value', this.newAchievement.value);
 
             await axios.post(config.backend + 'admin/achievements', fd, {withCredentials: true}).then((response) => {
                 this.achievements = response.data;
 
                 this.newAchievement.image = null;
                 this.newAchievement.preview = '';
-                this.newAchievement.progress = 0;
-                this.newAchievement.type = "lessons";
+                this.newAchievement.name = "";
+                this.newAchievement.description = "";
+                this.newAchievement.parameter = "";
+                this.newAchievement.value = 0;
             });
         }
     }
@@ -142,21 +149,25 @@ export default {
             />
             <img v-if="newAchievement.preview" :src="newAchievement.preview" class="achievement-image preview" alt="Превью" />
             <input
-                v-model="newAchievement.title"
+                v-model="newAchievement.name"
                 class="edit-input short"
                 type="text"
                 placeholder="Заголовок" style="width: 150px;"
             />
             <input
-                v-model="newAchievement.progress"
+                v-model="newAchievement.description"
                 class="edit-input short"
                 type="text"
+                placeholder="Описание" style="width: 150px;"
+            />
+            <input
+                v-model="newAchievement.value"
+                class="edit-input short"
+                type="number"
                 placeholder="Прогресс, уроков"
             />
-            <select v-model="newAchievement.type" name="" id="">
-                <option value="lessons">шт. уроков</option>
-                <option value="channel">@username канала</option>
-                <option value="tournament">id турнира</option>
+            <select v-model="newAchievement.parameter" name="" id="">
+                <option :value="key" v-for="(opt, key) in options">{{opt}}</option>
             </select>
             <button class="save-btn" @click="addAchievement">Добавить</button>
         </div>
@@ -165,7 +176,8 @@ export default {
             <tr>
                 <th>Изображение</th>
                 <th>Название</th>
-                <th>Прогресс</th>
+                <th>Описание</th>
+                <th>Требование</th>
                 <th>Действия</th>
             </tr>
             </thead>
@@ -184,33 +196,44 @@ export default {
                 </td>
                 <td>
             <span v-if="!isEditing(idx)">
-              {{ achievement.title }}
+              {{ achievement.name }}
             </span>
                     <input
                         v-else
-                        v-model="editForm.title"
+                        v-model="editForm.name"
                         type="text"
                         class="edit-input short"
-                        placeholder="Title"
+                        placeholder="Название"
+                        style="width: 150px;"
+                    />
+                </td>
+                <td>
+                    <span v-if="!isEditing(idx)">
+              {{ achievement.description }}
+            </span>
+                    <input
+                        v-else
+                        v-model="editForm.description"
+                        type="text"
+                        class="edit-input short"
+                        placeholder="Описание"
                         style="width: 150px;"
                     />
                 </td>
                 <td>
             <span v-if="!isEditing(idx)">
-              {{ achievement.progress }} {{ achievement.type === 'lessons' ? 'уроков' : achievement.type === 'channel' ? 'канал' : 'турнир' }}
+              {{ achievement.value }} {{ options[achievement.parameter] }}
             </span>
                     <template v-else>
                         <input
-                            v-model.number="editForm.progress"
-                            type="text"
+                            v-model.number="editForm.value"
+                            type="number"
                             min="0"
                             class="edit-input short"
                             placeholder="Progress"
                         />
-                        <select v-model="editForm.type" name="" id="">
-                            <option value="lessons">шт. уроков</option>
-                            <option value="channel">@username канала</option>
-                            <option value="tournament">id турнира</option>
+                        <select v-model="newAchievement.parameter" name="" id="">
+                            <option :value="key" v-for="(opt, key) in options">{{opt}}</option>
                         </select>
                     </template>
                 </td>

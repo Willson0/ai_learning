@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,9 +23,10 @@ class AdminUpdateAchievementRequest extends FormRequest
     {
         return [
             "image" => "nullable|file|mimes:jpeg,png,jpg,gif,svg,webp",
-            "progress" => "nullable|string",
-            "title" => "nullable|string",
-            "type" => "nullable|string|in:lessons,channel,tournament",
+            "description" => "nullable|string",
+            "name" => "nullable|string",
+            "parameter" => "nullable|string",
+            "value" => "nullable|integer",
         ];
     }
 }

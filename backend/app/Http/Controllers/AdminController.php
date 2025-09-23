@@ -2,39 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AdminCreateAchievementRequest;
-use App\Http\Requests\AdminCreateCourseRequest;
-use App\Http\Requests\AdminCreateCurrencyRequest;
-use App\Http\Requests\AdminCreateFiatRequest;
-use App\Http\Requests\AdminCreateLessonRequest;
-use App\Http\Requests\AdminCreateNewsRequest;
-use App\Http\Requests\AdminCreateTournamentRequest;
-use App\Http\Requests\AdminUpdateAchievementRequest;
-use App\Http\Requests\AdminUpdateCourseRequest;
-use App\Http\Requests\AdminUpdateCurrencyRequest;
-use App\Http\Requests\AdminUpdateFiatRequest;
-use App\Http\Requests\AdminUpdateLessonRequest;
-use App\Http\Requests\adminUpdateNewsCategoryRequest;
-use App\Http\Requests\AdminUpdateNewsRequest;
-use App\Http\Requests\AdminUpdateOrderRequest;
-use App\Http\Requests\AdminUpdateTournamentRequest;
+use App\Http\Requests\admin\AdminCreateAchievementRequest;
+use App\Http\Requests\admin\AdminCreateCourseRequest;
+use App\Http\Requests\admin\AdminCreateLessonRequest;
+use App\Http\Requests\admin\AdminUpdateAchievementRequest;
+use App\Http\Requests\admin\AdminUpdateCourseRequest;
+use App\Http\Requests\admin\AdminUpdateLessonRequest;
 use App\Http\utils;
 use App\Models\Achievement;
-use App\Models\Achievements;
 use App\Models\Admin;
 use App\Models\AdminCookie;
 use App\Models\Course;
-use App\Models\Currency;
-use App\Models\FiatCurrency;
 use App\Models\Lesson;
-use App\Models\News;
-use App\Models\NewsCategory;
-use App\Models\Order;
-use App\Models\Picture;
 use App\Models\Support;
-use App\Models\Tournament;
 use App\Models\User;
-use App\Models\WhiteList;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -233,8 +214,6 @@ class AdminController extends Controller
 
     public function updateAchievement (Achievement $achievement, AdminUpdateAchievementRequest $request) {
         $validate = $request->validated();
-        if ($validate["type"] === "lessons" && $validate["progress"] < 0) abort(400, "Прогресс не может быть меньше 0");
-        if ($validate["type"] === "channel" && $validate["progress"][0] != '@') abort(400, "Телеграм канал должен начинаться с символа @");
 
         if ($request->has("image")) {
             Storage::disk("public")->delete($achievement->image);
@@ -257,9 +236,6 @@ class AdminController extends Controller
 
     public function createAchievement (AdminCreateAchievementRequest $request) {
         $validate = $request->validated();
-
-        if ($validate["type"] === "lessons" && $validate["progress"] < 0) abort(400, "Прогресс не может быть меньше 0");
-        if ($validate["type"] === "channel" && $validate["progress"][0] != '@') abort(400, "Телеграм канал должен начинаться с символа @");
 
         $picture = $request->file("image");
         $time = time();
