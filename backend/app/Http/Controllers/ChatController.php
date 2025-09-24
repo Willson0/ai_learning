@@ -210,7 +210,6 @@ class ChatController extends Controller
                                     echo $json['choices'][0]['delta']['content'];
                                     $assistant .= $json['choices'][0]['delta']['content'];
 
-                                    ob_flush();
                                     flush();
                                 }
                             }
@@ -231,7 +230,6 @@ class ChatController extends Controller
                                 echo $json['choices'][0]['delta']['content'];
                                 $assistant .= $json['choices'][0]['delta']['content'];
 
-                                ob_flush();
                                 flush();
                             }
                         }
@@ -248,14 +246,14 @@ class ChatController extends Controller
                 if($statusCode) echo "HTTP статус: " . $statusCode . "\n";
                 if($responseBody) echo "Тело ответа: " . $responseBody . "\n";
 
-                ob_flush(); flush();
+                flush();
 
                 $user->tokens++;
                 $user->save();
             } catch (\Exception $e) {
                 Log::error('Ошибка стрима (общее исключение): ' . $e->getMessage());
                 echo "[Stream error]: " . $e->getMessage() . "\n";
-                ob_flush(); flush();
+                flush();
             }
         }, 200, [
             'Content-Type' => 'text/plain; charset=utf-8',
