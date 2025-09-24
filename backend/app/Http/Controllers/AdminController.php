@@ -332,6 +332,14 @@ class AdminController extends Controller
         return Subject::all();
     }
 
+    public function updateSubject (Subject $subject, Request $request) {
+        if (!$request->has("state_description")) abort (400);
+        $subject->state_description = $request->state_description;
+        $subject->save();
+
+        return $this->subjects();
+    }
+
     public function states () {
         return State::all();
     }

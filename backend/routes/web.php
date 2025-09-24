@@ -139,6 +139,7 @@ Route::group(["prefix" => "api"], function () {
         });
         Route::prefix('subjects')->group(function () {
             Route::get('/', [AdminController::class, 'subjects']);
+            Route::post("/{subject}", [AdminController::class, 'updateSubject']);
         });
         Route::prefix('states')->group(function () {
             Route::get('/', [AdminController::class, 'states']);

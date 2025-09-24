@@ -10,6 +10,7 @@ import AdminView from "@/views/admin/adminView.vue";
 import adminStatesView from "@/views/admin/adminStatesView.vue";
 import adminAdView from "@/views/admin/adminAdView.vue";
 import adminProbesView from "@/views/admin/adminProbesView.vue";
+import adminSubjectsView from "@/views/admin/adminSubjectsView.vue";
 
 
 const routes = [
@@ -76,6 +77,12 @@ const routes = [
         component: adminAdView,
         meta: { title: 'CryptoCourses | Ads', h: 'Рекламы' },
         name: 'ads'
+    },
+    {
+        path: "/admin/subjects",
+        component: adminSubjectsView,
+        meta: { title: 'CryptoCourses | Subjects', h: 'Предметы' },
+        name: 'subjects'
     },
 ]
 

@@ -166,6 +166,11 @@ export default {
                     <i class="fa-brands fa-adversal"></i>
                     <p>Рекламы</p>
                 </div>
+                <div @click="$router.push('/admin/subjects')">
+                    <div v-if="$route.path === '/admin/subjects'" class="adminnav_main_nav_main_el_point">&middot;</div>
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <p>Предметы</p>
+                </div>
             </div>
         </nav>
         <div class="adminnav_main_main">
