@@ -7,6 +7,9 @@ import AdminUserIndexView from "@/views/admin/adminUserIndexView.vue";
 import AdminUsersView from "@/views/admin/adminUsersView.vue";
 import AdminLoginView from "@/views/admin/adminLoginView.vue";
 import AdminView from "@/views/admin/adminView.vue";
+import adminStatesView from "@/views/admin/adminStatesView.vue";
+import adminAdView from "@/views/admin/adminAdView.vue";
+import adminProbesView from "@/views/admin/adminProbesView.vue";
 
 
 const routes = [
@@ -58,15 +61,21 @@ const routes = [
     },
     {
         path: "/admin/probes",
-        component: adminSupportView,
+        component: adminProbesView,
         meta: { title: 'CryptoCourses | Probes', h: 'Пробники' },
         name: 'probes'
     },
     {
         path: "/admin/states",
-        component: adminSupportView,
+        component: adminStatesView,
         meta: { title: 'CryptoCourses | States', h: 'Статьи' },
         name: 'states'
+    },
+    {
+        path: "/admin/ads",
+        component: adminAdView,
+        meta: { title: 'CryptoCourses | Ads', h: 'Рекламы' },
+        name: 'ads'
     },
 ]
 

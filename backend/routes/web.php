@@ -137,5 +137,32 @@ Route::group(["prefix" => "api"], function () {
             Route::get('/{support}/close', [AdminController::class, 'supportClose']);
             Route::post('/{support}/send', [AdminController::class, 'supportSend']);
         });
+        Route::prefix('subjects')->group(function () {
+            Route::get('/', [AdminController::class, 'subjects']);
+        });
+        Route::prefix('states')->group(function () {
+            Route::get('/', [AdminController::class, 'states']);
+            Route::post('/', [AdminController::class, 'createState']);
+            Route::post('{state}', [AdminController::class, 'updateState']);
+            Route::delete('{state}', [AdminController::class, 'deleteState']);
+        });
+        Route::prefix('ads')->group(function () {
+            Route::get('/', [AdminController::class, 'ads']);
+            Route::post('/', [AdminController::class, 'createAd']);
+            Route::post('{ad}', [AdminController::class, 'updateAd']);
+            Route::delete('{ad}', [AdminController::class, 'deleteAd']);
+        });
+        Route::prefix('probes')->group(function () {
+            Route::get('/', [AdminController::class, 'probes']);
+            Route::post('/', [AdminController::class, 'createProbe']);
+            Route::post('{probe}', [AdminController::class, 'updateProbe']);
+            Route::delete('{probe}', [AdminController::class, 'deleteProbe']);
+        });
+        Route::prefix('variants')->group(function () {
+            Route::get('/', [AdminController::class, 'variants']);
+            Route::post('/', [AdminController::class, 'createVariant']);
+            Route::post('{variant}', [AdminController::class, 'updateVariant']);
+            Route::delete('{variant}', [AdminController::class, 'deleteVariant']);
+        });
     });
 });

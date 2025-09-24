@@ -161,6 +161,11 @@ export default {
                     <i class="fa-solid fa-newspaper"></i>
                     <p>Статьи</p>
                 </div>
+                <div @click="$router.push('/admin/ads')">
+                    <div v-if="$route.path === '/admin/ads'" class="adminnav_main_nav_main_el_point">&middot;</div>
+                    <i class="fa-brands fa-adversal"></i>
+                    <p>Рекламы</p>
+                </div>
             </div>
         </nav>
         <div class="adminnav_main_main">

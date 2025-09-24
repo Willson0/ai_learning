@@ -1,4 +1,12 @@
 /* АДМИН */
+.admin-states {
+    --bg: #12121C;
+    --accent: #389466;
+    --muted: #6b7280;
+    --card: #1b1b26;
+    --danger: #e05252;
+    --text: #E6EDF0;
+}
 
 /* АВТОРИЗАЦИЯ */
 .adminLogin {

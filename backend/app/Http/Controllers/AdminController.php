@@ -3,19 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\admin\AdminCreateAchievementRequest;
+use App\Http\Requests\admin\AdminCreateAdRequest;
 use App\Http\Requests\admin\AdminCreateCourseRequest;
 use App\Http\Requests\admin\AdminCreateLessonRequest;
+use App\Http\Requests\admin\AdminCreateProbeRequest;
+use App\Http\Requests\admin\AdminCreateStateRequest;
+use App\Http\Requests\admin\AdminCreateVariantRequest;
 use App\Http\Requests\admin\AdminUpdateAchievementRequest;
+use App\Http\Requests\admin\AdminUpdateAdRequest;
 use App\Http\Requests\admin\AdminUpdateCourseRequest;
 use App\Http\Requests\admin\AdminUpdateLessonRequest;
+use App\Http\Requests\admin\AdminUpdateProbeRequest;
+use App\Http\Requests\admin\AdminUpdateStateRequest;
+use App\Http\Requests\admin\AdminUpdateVariantRequest;
 use App\Http\utils;
 use App\Models\Achievement;
+use App\Models\Ad;
 use App\Models\Admin;
 use App\Models\AdminCookie;
 use App\Models\Course;
 use App\Models\Lesson;
+use App\Models\Probe;
+use App\Models\State;
+use App\Models\Subject;
 use App\Models\Support;
 use App\Models\User;
+use App\Models\Variant;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -314,4 +327,119 @@ class AdminController extends Controller
 
         return $this->supports();
     }
+
+    public function subjects () {
+        return Subject::all();
+    }
+
+    public function states () {
+        return State::all();
+    }
+    public function updateState (State $state, AdminUpdateStateRequest $request) {
+        $validate = $request->validated();
+        $validate["materials"] = json_encode($validate["materials"]);
+
+        $state->update($validate);
+        return $this->states();
+    }
+
+    public function deleteState (State $state, Request $request) {
+        $state->delete();
+        return $this->states();
+    }
+
+    public function createState (AdminCreateStateRequest $request) {
+        $validate = $request->validated();
+        $validate["materials"] = json_encode($validate["materials"]);
+
+        State::create($validate);
+        return $this->states();
+    }
+
+    public function ads () {
+        return Ad::all();
+    }
+    public function updateAd (Ad $ad, AdminUpdateAdRequest $request) {
+        $validate = $request->validated();
+
+        if ($request->has("picture")) {
+            Storage::disk("public")->delete($ad->picture);
+
+            $picture = $request->file("picture");
+            $time = time();
+            $url = "ad/image_$time" . "." . $picture->extension();
+            Storage::disk("public")->putFileAs("ad", $picture, "image_$time" . "." . $picture->extension());
+            $validate["picture"] = $url;
+        }
+
+        $ad->update($validate);
+        return $this->ads();
+    }
+
+    public function deleteAd (Ad $ad, Request $request) {
+        $ad->delete();
+        return $this->ads();
+    }
+
+    public function createAd (AdminCreateAdRequest $request) {
+        $validate = $request->validated();
+
+        $picture = $request->file("picture");
+        $time = time();
+        $url = "ads/image_$time" . "." . $picture->extension();
+        Storage::disk("public")->putFileAs("ads", $picture, "image_$time" . "." . $picture->extension());
+        $validate["picture"] = $url;
+
+        Ad::create($validate);
+        return $this->ads();
+    }
+
+
+    public function probes () {
+        return Probe::all();
+    }
+    public function updateProbe (Probe $probe, AdminUpdateProbeRequest $request) {
+        $validate = $request->validated();
+
+        $probe->update($validate);
+        return $this->probes();
+    }
+
+    public function deleteProbe (Probe $probe, Request $request) {
+        $probe->delete();
+        return $this->probes();
+    }
+
+    public function createProbe (AdminCreateProbeRequest $request) {
+        $validate = $request->validated();
+
+        Probe::create($validate);
+        return $this->probes();
+    }
+
+
+    public function variants () {
+        return Variant::all();
+    }
+    public function updateVariant (Variant $variant, AdminUpdateVariantRequest $request) {
+        $validate = $request->validated();
+        $validate["exercises"] = json_encode($validate["exercises"]);
+
+        $variant->update($validate);
+        return $this->variants();
+    }
+
+    public function deleteVariant (Variant $variant, Request $request) {
+        $variant->delete();
+        return $this->variants();
+    }
+
+    public function createVariant (AdminCreateVariantRequest $request) {
+        $validate = $request->validated();
+        $validate["exercises"] = json_encode($validate["exercises"]);
+
+        Variant::create($validate);
+        return $this->variants();
+    }
+
 }
