@@ -23,7 +23,7 @@ class AdminUpdateProbeRequest extends FormRequest
     {
         return [
             "subject_id" => "nullable|integer|exists:subjects,id",
-            "type" => "nullable|integer|in:ege,oge,vpr",
+            "type" => "nullable|string|in:ege,oge,vpr",
             "title" => "nullable|string",
         ];
     }

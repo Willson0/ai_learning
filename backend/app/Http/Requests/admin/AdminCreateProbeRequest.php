@@ -23,7 +23,7 @@ class AdminCreateProbeRequest extends FormRequest
     {
         return [
             "subject_id" => "required|integer|exists:subjects,id",
-            "type" => "required|integer|in:ege,oge,vpr",
+            "type" => "required|string|in:ege,oge,vpr",
             "title" => "required|string",
         ];
     }

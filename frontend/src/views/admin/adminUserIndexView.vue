@@ -54,7 +54,6 @@ export default {
 
             <div class="profile-info">
                 <h2 class="user-name">{{ user.fullname }}</h2>
-                <h3 class="user-name" style="font-size: 18px; font-weight: 400;">{{ user.balance }} ₽</h3>
                 <div class="ids">
                     <div class="id-row" title="Telegram">
                         <svg class="id-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -75,11 +74,11 @@ export default {
                     </div>
                 </div>
             </div>
-            <div class="profile-crypto">
-                <div v-for="(crypt, key) in user.crypto">
-                    <img :src="user.currenciesData.find(x => x.coingeckoId === key).logo" alt=""> {{ user.currenciesData.find(x => x.coingeckoId === key).name }}: {{crypt.toFixed(2)}}
-                </div>
-            </div>
+<!--            <div class="profile-crypto">-->
+<!--                <div v-for="(crypt, key) in user.crypto">-->
+<!--                    <img :src="user.currenciesData.find(x => x.coingeckoId === key).logo" alt=""> {{ user.currenciesData.find(x => x.coingeckoId === key).name }}: {{crypt.toFixed(2)}}-->
+<!--                </div>-->
+<!--            </div>-->
         </section>
 
         <!-- Курсы -->

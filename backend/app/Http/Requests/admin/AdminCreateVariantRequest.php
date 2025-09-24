@@ -11,7 +11,7 @@ class AdminCreateVariantRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,8 @@ class AdminCreateVariantRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "exercises" => "nullable|array",
+            "probe_id" => "required|exists:probes,id",
         ];
     }
 }

@@ -1,209 +1,214 @@
 <template>
-    <div class="admin-root">
-        <div class="sidebar">
-            <div class="header">
-                <h2>Пробники</h2>
-                <button class="btn btn-add" @click="openProbeForm()">+ Добавить</button>
-            </div>
-
-            <div class="filter">
-                <label>Фильтр по предмету</label>
-                <select v-model="filterSubject">
-                    <option value="">Все предметы</option>
-                    <option v-for="s in subjects" :key="s.id" :value="s.id">{{ s.name }}</option>
-                </select>
-            </div>
-
-            <ul class="probe-list">
-                <li
-                    v-for="probe in filteredProbes"
-                    :key="probe.id"
-                    :class="{ active: selectedProbe && selectedProbe.id === probe.id }"
-                    @click="selectProbe(probe)"
-                >
-                    <div class="probe-title">
-                        <strong>{{ probe.title }}</strong>
-                        <small class="meta">{{ probe.type }} · {{ subjectName(probe.subject_id) }}</small>
-                    </div>
-                    <div class="probe-actions">
-                        <button class="tiny" @click.stop="openProbeForm(probe)">✎</button>
-                        <button class="tiny danger" @click.stop="deleteProbe(probe)">🗑</button>
-                    </div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="content">
-            <div v-if="!selectedProbe" class="empty">
-                <h3>Выберите пробник слева или создайте новый</h3>
-            </div>
-
-            <div v-else class="probe-panel">
-                <div class="panel-header">
-                    <div>
-                        <h2>{{ selectedProbe.title }}</h2>
-                        <div class="meta-row">
-                            <span class="chip">{{ selectedProbe.type }}</span>
-                            <span class="meta-subject"> {{ subjectName(selectedProbe.subject_id) }}</span>
-                        </div>
-                    </div>
-
-                    <div class="right-controls">
-                        <button class="btn" @click="openProbeForm(selectedProbe)">Редактировать пробник</button>
-                        <button class="btn btn-add" @click="openVariantForm({ probe_id: selectedProbe.id })">+ Новый вариант</button>
-                    </div>
+    <adminnav>
+        <div class="admin-root">
+            <div class="sidebar">
+                <div class="header">
+                    <h2>Пробники</h2>
+                    <button class="btn btn-add" @click="openProbeForm()">+ Добавить</button>
                 </div>
 
-                <div class="variants-area">
-                    <div v-if="variantsForSelected.length === 0" class="no-variants">
-                        Нет вариантов — создайте первый вариант
-                    </div>
-
-                    <!-- Compact list of variants: collapsed by default; expand one at a time -->
-                    <div
-                        v-for="(variant, index) in variantsForSelected"
-                        :key="variant.id !== undefined ? variant.id : variant.__local_id || ('new_' + index)"
-                        class="variant-card"
-                    >
-                        <div class="variant-header" @click="toggleVariant(variant)">
-                            <div style="display:flex; align-items:center; gap:12px;">
-                                <div class="chev" :class="{open: isVariantExpanded(variant)}">▸</div>
-                                <div>
-                                    <strong>Вариант {{ index + 1 }}</strong>
-                                    <div class="variant-title">{{ variant.title || 'Без заголовка' }}</div>
-                                </div>
-                            </div>
-
-                            <div class="variant-actions">
-                                <!-- reorder buttons -->
-                                <button class="tiny" @click.stop="moveVariantUp(variant)" :disabled="!canMoveVariantUp(variant)">↑</button>
-                                <button class="tiny" @click.stop="moveVariantDown(variant)" :disabled="!canMoveVariantDown(variant)">↓</button>
-
-                                <button class="tiny" @click.stop="openVariantForm(variant)">✎</button>
-                                <button class="tiny danger" @click.stop="deleteVariant(variant)">🗑</button>
-                            </div>
-                        </div>
-
-                        <!-- expanded area (only for selected expanded variant) -->
-                        <div v-if="isVariantExpanded(variant)" class="variant-body">
-                            <div class="exercises-list">
-                                <div
-                                    class="exercise-item"
-                                    v-for="(ex, idx) in variant.exercises"
-                                    :key="ex.__local_id || idx"
-                                >
-                                    <div class="ex-top">
-                                        <div class="ex-title">Задание {{ idx + 1 }} — {{ ex.points || 0 }} баллов</div>
-                                        <div class="ex-controls">
-                                            <button class="tiny" @click="moveExerciseUp(variant, idx)" :disabled="idx===0">↑</button>
-                                            <button class="tiny" @click="moveExerciseDown(variant, idx)" :disabled="idx===variant.exercises.length-1">↓</button>
-                                            <button class="tiny danger" @click="removeExercise(variant, idx)">✖</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="ex-edit-row">
-                                        <div class="editor-col">
-                                            <label>Текст задания (Markdown)</label>
-                                            <textarea
-                                                :ref="setExerciseTextRef(variant, idx)"
-                                                class="md-editor-textarea"
-                                            >{{ ex.text }}</textarea>
-                                            <div class="small-row">
-                                                <label>Баллы</label>
-                                                <input type="number" v-model.number="ex.points" min="0" />
-                                                <label>Правильный ответ (значение)</label>
-                                                <input type="text" v-model="ex.right_answer.value" />
-                                            </div>
-                                            <label>Предпросмотр текста</label>
-                                            <div class="md-preview" v-html="renderMarkdown(ex.text)"></div>
-                                        </div>
-
-                                        <div class="preview-col">
-                                            <label>Решение (Markdown)</label>
-                                            <textarea
-                                                :ref="setExerciseSolutionRef(variant, idx)"
-                                                class="md-editor-textarea"
-                                            >{{ ex.right_answer.description }}</textarea>
-
-                                            <label>Предпросмотр решения</label>
-                                            <div class="md-preview" v-html="renderMarkdown(ex.right_answer.description)"></div>
-                                        </div>
-                                    </div>
-                                </div> <!-- exercise-item -->
-                            </div> <!-- exercises-list -->
-
-                            <div class="variant-footer">
-                                <button class="btn" @click="addExercise(variant)">+ Добавить задание</button>
-                                <button class="btn btn-save" @click="saveVariant(variant)">Сохранить вариант</button>
-                            </div>
-                        </div>
-                    </div> <!-- variant-card -->
-                </div> <!-- variants-area -->
-            </div>
-        </div>
-
-        <!-- Probe Form Modal -->
-        <div v-if="probeForm.visible" class="modal-backdrop" @click.self="closeProbeForm()">
-            <div class="modal">
-                <h3>{{ probeForm.editing ? 'Редактировать пробник' : 'Новый пробник' }}</h3>
-                <div class="form-row">
-                    <label>Заголовок</label>
-                    <input v-model="probeForm.data.title" />
-                </div>
-                <div class="form-row">
-                    <label>Тип</label>
-                    <select v-model="probeForm.data.type">
-                        <option value="ege">ege</option>
-                        <option value="oge">oge</option>
-                        <option value="vpr">vpr</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label>Предмет</label>
-                    <select v-model.number="probeForm.data.subject_id">
+                <div class="filter">
+                    <label>Фильтр по предмету</label>
+                    <select v-model="filterSubject">
+                        <option value="">Все предметы</option>
                         <option v-for="s in subjects" :key="s.id" :value="s.id">{{ s.name }}</option>
                     </select>
                 </div>
 
-                <div class="modal-actions">
-                    <button class="btn" @click="submitProbeForm()">Сохранить</button>
-                    <button class="btn" @click="closeProbeForm()">Отмена</button>
+                <ul class="probe-list">
+                    <li
+                        v-for="probe in filteredProbes"
+                        :key="probe.id"
+                        :class="{ active: selectedProbe && selectedProbe.id === probe.id }"
+                        @click="selectProbe(probe)"
+                    >
+                        <div class="probe-title">
+                            <strong>{{ probe.title }}</strong>
+                            <small class="meta">{{ probe.type }} · {{ subjectName(probe.subject_id) }}</small>
+                        </div>
+                        <div class="probe-actions">
+                            <button class="tiny" @click.stop="openProbeForm(probe)">✎</button>
+                            <button class="tiny danger" @click.stop="deleteProbe(probe)">🗑</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="content">
+                <div v-if="!selectedProbe" class="empty">
+                    <h3>Выберите пробник слева или создайте новый</h3>
+                </div>
+
+                <div v-else class="probe-panel">
+                    <div class="panel-header">
+                        <div>
+<!--                            <h2>{{ selectedProbe.title }}</h2>-->
+                            <div class="meta-row">
+                                <span class="chip">{{ selectedProbe.type }}</span>
+                                <span class="meta-subject"> {{ subjectName(selectedProbe.subject_id) }}</span>
+                            </div>
+                        </div>
+
+                        <div class="right-controls">
+                            <button class="btn" @click="openProbeForm(selectedProbe)">Редактировать пробник</button>
+                            <button class="btn btn-add" @click="openVariantForm({ probe_id: selectedProbe.id })">+ Новый вариант</button>
+                        </div>
+                    </div>
+
+                    <div class="variants-area">
+                        <div v-if="variantsForSelected.length === 0" class="no-variants">
+                            Нет вариантов — создайте первый вариант
+                        </div>
+
+                        <!-- Compact list of variants: collapsed by default; expand one at a time -->
+                        <div
+                            v-for="(variant, index) in variantsForSelected"
+                            :key="variant.id !== undefined ? variant.id : variant.__local_id || ('new_' + index)"
+                            class="variant-card"
+                        >
+                            <div class="variant-header" @click="toggleVariant(variant)">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div class="chev" :class="{open: isVariantExpanded(variant)}">▸</div>
+                                    <div>
+                                        <strong>Вариант {{ index + 1 }}</strong>
+                                        <div class="variant-title">{{ variant.title || 'Без заголовка' }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="variant-actions">
+                                    <!-- reorder buttons -->
+                                    <button class="tiny" @click.stop="moveVariantUp(variant)" :disabled="!canMoveVariantUp(variant)">↑</button>
+                                    <button class="tiny" @click.stop="moveVariantDown(variant)" :disabled="!canMoveVariantDown(variant)">↓</button>
+
+                                    <button class="tiny" @click.stop="openVariantForm(variant)">✎</button>
+                                    <button class="tiny danger" @click.stop="deleteVariant(variant)">🗑</button>
+                                </div>
+                            </div>
+
+                            <!-- expanded area (only for selected expanded variant) -->
+                            <div v-if="isVariantExpanded(variant)" class="variant-body">
+                                <div class="exercises-list">
+                                    <div
+                                        class="exercise-item"
+                                        v-for="(ex, idx) in variant.exercises"
+                                        :key="ex.__local_id || idx"
+                                    >
+                                        <div class="ex-top">
+                                            <div class="ex-title">Задание {{ idx + 1 }} — {{ ex.points || 0 }} баллов</div>
+                                            <div class="ex-controls">
+                                                <button class="tiny" @click="moveExerciseUp(variant, idx)" :disabled="idx===0">↑</button>
+                                                <button class="tiny" @click="moveExerciseDown(variant, idx)" :disabled="idx===variant.exercises.length-1">↓</button>
+                                                <button class="tiny danger" @click="removeExercise(variant, idx)">✖</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="ex-edit-row">
+                                            <div class="editor-col">
+                                                <label>Текст задания (Markdown)</label>
+                                                <textarea
+                                                    :ref="setExerciseTextRef(variant, idx)"
+                                                    class="md-editor-textarea"
+                                                >{{ ex.text }}</textarea>
+                                                <div class="small-row">
+                                                    <label>Баллы</label>
+                                                    <input type="number" v-model.number="ex.points" min="0" />
+                                                    <label>Правильный ответ (значение)</label>
+                                                    <input type="text" v-model="ex.right_answer.value" />
+                                                </div>
+                                                <label>Предпросмотр текста</label>
+                                                <div class="md-preview" v-html="renderMarkdown(ex.text)"></div>
+                                            </div>
+
+                                            <div class="preview-col">
+                                                <label>Решение (Markdown)</label>
+                                                <textarea
+                                                    :ref="setExerciseSolutionRef(variant, idx)"
+                                                    class="md-editor-textarea"
+                                                >{{ ex.right_answer.description }}</textarea>
+
+                                                <label>Предпросмотр решения</label>
+                                                <div class="md-preview" v-html="renderMarkdown(ex.right_answer.description)"></div>
+                                            </div>
+                                        </div>
+                                    </div> <!-- exercise-item -->
+                                </div> <!-- exercises-list -->
+
+                                <div class="variant-footer">
+                                    <button class="btn" @click="addExercise(variant)">+ Добавить задание</button>
+                                    <button class="btn btn-save" @click="saveVariant(variant)">Сохранить вариант</button>
+                                </div>
+                            </div>
+                        </div> <!-- variant-card -->
+                    </div> <!-- variants-area -->
                 </div>
             </div>
-        </div>
 
-        <!-- Variant Form Modal (for create/edit header/title) -->
-        <div v-if="variantForm.visible" class="modal-backdrop" @click.self="closeVariantForm()">
-            <div class="modal">
-                <h3>{{ variantForm.editing ? 'Редактировать вариант' : 'Новый вариант' }}</h3>
-                <div class="form-row">
-                    <label>Заголовок варианта</label>
-                    <input v-model="variantForm.data.title" />
-                </div>
-                <div class="form-row">
-                    <label>Пробник</label>
-                    <select v-model.number="variantForm.data.probe_id">
-                        <option v-for="p in probes" :key="p.id" :value="p.id">{{ p.title }}</option>
-                    </select>
-                </div>
+            <!-- Probe Form Modal -->
+            <div v-if="probeForm.visible" class="modal-backdrop" @click.self="closeProbeForm()">
+                <div class="modal">
+                    <h3>{{ probeForm.editing ? 'Редактировать пробник' : 'Новый пробник' }}</h3>
+                    <div class="form-row">
+                        <label>Заголовок</label>
+                        <input v-model="probeForm.data.title" />
+                    </div>
+                    <div class="form-row">
+                        <label>Тип</label>
+                        <select v-model="probeForm.data.type">
+                            <option value="ege">ege</option>
+                            <option value="oge">oge</option>
+                            <option value="vpr">vpr</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Предмет</label>
+                        <select v-model.number="probeForm.data.subject_id">
+                            <option v-for="s in subjects" :key="s.id" :value="s.id">{{ s.name }}</option>
+                        </select>
+                    </div>
 
-                <div class="modal-actions">
-                    <button class="btn" @click="submitVariantForm()">Сохранить</button>
-                    <button class="btn" @click="closeVariantForm()">Отмена</button>
+                    <div class="modal-actions">
+                        <button class="btn" @click="submitProbeForm()">Сохранить</button>
+                        <button class="btn" @click="closeProbeForm()">Отмена</button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-    </div>
+            <!-- Variant Form Modal (for create/edit header/title) -->
+            <div v-if="variantForm.visible" class="modal-backdrop" @click.self="closeVariantForm()">
+                <div class="modal">
+                    <h3>{{ variantForm.editing ? 'Редактировать вариант' : 'Новый вариант' }}</h3>
+<!--                    <div class="form-row">-->
+<!--                        <label>Заголовок варианта</label>-->
+<!--                        <input v-model="variantForm.data.title" />-->
+<!--                    </div>-->
+                    <div class="form-row">
+                        <label>Пробник</label>
+                        <select v-model.number="variantForm.data.probe_id">
+                            <option v-for="p in probes" :key="p.id" :value="p.id">{{ p.title }}</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button class="btn" @click="submitVariantForm()">Сохранить</button>
+                        <button class="btn" @click="closeVariantForm()">Отмена</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </adminnav>
 </template>
 
 <script>
+import adminnav from "@/components/adminnav.vue"
 import axios from "axios";
 import config from "@/config.json";
 import { marked } from "marked";
+import {deepParse} from "@/utils.js";
 
 export default {
     name: "AdminProbesVariants",
+    components: {adminnav},
     data() {
         return {
             probes: [],
@@ -221,7 +226,8 @@ export default {
             variantForm: {
                 visible: false,
                 editing: false,
-                data: { id: null, title: "", probe_id: null, exercises: [] },
+                // data: { id: null, title: "", probe_id: null, exercises: [] },
+                data: { id: null, probe_id: null, exercises: [] },
             },
 
             editorsMap: { text: {}, solution: {} },
@@ -293,7 +299,7 @@ export default {
         async loadProbes() {
             try {
                 const resp = await axios.get(config.backend + "admin/probes");
-                this.probes = resp.data || [];
+                this.probes = deepParse(resp.data) || [];
             } catch (e) {
                 console.error("loadProbes error", e);
                 alert("Ошибка загрузки пробников");
@@ -303,10 +309,10 @@ export default {
             try {
                 if (editing && payload.id) {
                     const resp = await axios.post(config.backend + "admin/probes/" + payload.id, payload);
-                    this.probes = resp.data || [];
+                    this.probes = deepParse(resp.data) || [];
                 } else {
                     const resp = await axios.post(config.backend + "admin/probes", payload);
-                    this.probes = resp.data || [];
+                    this.probes = deepParse(resp.data) || [];
                 }
             } catch (e) {
                 console.error(e);
@@ -317,7 +323,7 @@ export default {
             if (!confirm("Удалить пробник и все его варианты?")) return;
             try {
                 const resp = await axios.delete(config.backend + "admin/probes/" + probe.id);
-                this.probes = resp.data || [];
+                this.probes = deepParse(resp.data) || [];
                 if (this.selectedProbe && this.selectedProbe.id === probe.id) this.selectedProbe = null;
             } catch (e) {
                 console.error(e);
@@ -329,7 +335,7 @@ export default {
         async loadVariants() {
             try {
                 const resp = await axios.get(config.backend + "admin/variants");
-                this.variants = (resp.data || []).map((v) => {
+                this.variants = (deepParse(resp.data) || []).map((v) => {
                     try {
                         if (typeof v.exercises === "string") v.exercises = JSON.parse(v.exercises);
                     } catch (err) {}
@@ -357,10 +363,10 @@ export default {
 
                 if (editing && payloadCopy.id) {
                     const resp = await axios.post(config.backend + "admin/variants/" + payloadCopy.id, payloadCopy);
-                    this.variants = resp.data || [];
+                    this.variants = deepParse(resp.data) || [];
                 } else {
                     const resp = await axios.post(config.backend + "admin/variants", payloadCopy);
-                    this.variants = resp.data || [];
+                    this.variants = deepParse(resp.data) || [];
                 }
             } catch (e) {
                 console.error(e);
@@ -378,7 +384,7 @@ export default {
             if (!confirm("Удалить вариант?")) return;
             try {
                 const resp = await axios.delete(config.backend + "admin/variants/" + variant.id);
-                this.variants = resp.data || [];
+                this.variants = deepParse(resp.data) || [];
             } catch (e) {
                 console.error(e);
                 alert("Ошибка удаления варианта");
@@ -427,7 +433,7 @@ export default {
                 this.variantForm.editing = true;
                 this.variantForm.data = {
                     id: variant.id,
-                    title: variant.title || "",
+                    // title: variant.title || "",
                     probe_id: variant.probe_id,
                     exercises: variant.exercises ? JSON.parse(JSON.stringify(variant.exercises)) : [],
                 };
@@ -435,7 +441,7 @@ export default {
                 this.variantForm.editing = false;
                 this.variantForm.data = {
                     id: null,
-                    title: "",
+                    // title: "",
                     probe_id: variant && variant.probe_id ? variant.probe_id : (this.selectedProbe ? this.selectedProbe.id : (this.probes[0] ? this.probes[0].id : null)),
                     exercises: [],
                 };
@@ -486,9 +492,7 @@ export default {
             this.$nextTick(() => this.initAllEditors());
         },
         swapAndPreserveArray(arr, i, j) {
-            const tmp = arr[i];
-            this.$set(arr, i, arr[j]);
-            this.$set(arr, j, tmp);
+            [arr[i], arr[j]] = [arr[j], arr[i]];
         },
 
         // Save an inline variant
