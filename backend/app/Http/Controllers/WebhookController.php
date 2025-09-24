@@ -97,5 +97,6 @@ class WebhookController extends Controller
                 }
             }
         } catch (\Exception $e) {}
+        return response("ok", 200);
     }
 }
