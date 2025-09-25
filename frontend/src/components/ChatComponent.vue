@@ -87,7 +87,7 @@ export default {
         },
         async sendMessage () {
             if (this.isLoading) return;
-            if (this.user.tokens === 0) return notify("У вас закончились токены", 1);
+            if (this.user.tokens === 0 && this.user.is_sub === 0) return notify("У вас закончились токены", 1);
             if (this.chat == null && this.chat_id === -1) return this.storeChat();
 
             this.newMessage = this.newMessage.trim();
@@ -151,6 +151,7 @@ export default {
                     body: fd
                 });
             } else {
+                this.isRecording = false;
                 this.audioBlob = null;
                 response = await fetch(config.backend + `chat/${this.chat.id}/audio`, {
                     method: 'POST',
@@ -189,8 +190,9 @@ export default {
 
             let index = newUser.chats.findIndex((ch) => ch.id === this.chat_id);
             newUser.chats[index] = this.chat;
-            newUser.tokens--;
-
+            if (newUser.is_sub === 0) {
+                newUser.tokens--;
+            }
             this.$store.commit("setUser", newUser);
             this.isLoading = false;
         },
@@ -370,18 +372,24 @@ export default {
             this.initChat();
         },
         audioBlob () {
-            let send = this.$refs.send_button;
-            let voice = this.$refs.voice_button;
+            console.log(this.audioBlob == null);
+            this.$nextTick(() => {
+                let send = this.$refs.send_button;
+                let voice = this.$refs.voice_button;
 
-            let oldEl = this.audioBlob != null ? voice : send;
-            let newEl = this.audioBlob != null ? send : voice;
+                let oldEl = this.audioBlob != null ? voice : send;
+                let newEl = this.audioBlob != null ? send : voice;
 
-            oldEl.style.opacity = '0';
-            oldEl.addEventListener('transitionend', () => {
-                oldEl.style.display = 'none';
-                newEl.style.display = '';
-                newEl.style.opacity = '1';
-            }, {once: true});
+                oldEl.style.opacity = '0';
+                oldEl.addEventListener('transitionend', () => {
+                    let oldEl = this.audioBlob != null ? voice : send;
+                    let newEl = this.audioBlob != null ? send : voice;
+
+                    oldEl.style.display = 'none';
+                    newEl.style.display = '';
+                    newEl.style.opacity = '1';
+                }, {once: true});
+            })
         },
         newMessage () {
             let send = this.$refs.send_button;
@@ -404,7 +412,7 @@ export default {
 <template>
     <div class="chat">
         <div class="chat_main">
-            <div class="chat_main_filler" v-if="chat == null || chat?.dialog?.filter(mes => mes.role !== 'system').length === 0">
+            <div class="chat_main_filler" v-if="!(user.is_sub === 0 && user.tokens === 0) && (chat == null || chat?.dialog?.filter(mes => mes.role !== 'system').length === 0)">
                 <svg width="48" height="41" viewBox="0 0 48 41" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M0 5.125C0 2.29454 2.30254 0 5.14286 0H42.8572C45.6975 0 48 2.29454 48 5.125V35.875C48 38.7055 45.6975 41 42.8571 41H5.14285C2.30253 41 0 38.7055 0 35.875V5.125Z" fill="#7B61FF"/>
                     <path d="M10.2857 17.0833C10.2857 15.1963 11.8207 13.6666 13.7143 13.6666C15.6078 13.6666 17.1429 15.1963 17.1429 17.0833C17.1429 18.9703 15.6078 20.4999 13.7143 20.4999C11.8207 20.4999 10.2857 18.9703 10.2857 17.0833Z" fill="#121212"/>
@@ -431,7 +439,7 @@ export default {
                         </div>
                     </template>
                 </div>
-                <div class="chat_main_messages_noTokens" v-if="user.tokens <= 0">
+                <div class="chat_main_messages_noTokens" v-if="user.tokens <= 0 && user.is_sub === 0">
                     <div>Вы потратили бесплатные запросы. Для неограниченного количества запросов оформите подписку</div>
                     <button @click="toLink('subscription')">Оформить</button>
                 </div>
@@ -485,7 +493,7 @@ export default {
                 <div class="circle"></div>
                 <div>{{ toFormatTime(recordingTimer) }}</div>
             </div>
-            <button class="chat_input_recording_pause" @click="inactiveMicrophone">
+            <button class="chat_input_recording_pause" @click="inactiveMicrophone(false)">
                 <svg width="10" height="18" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1 0C1.55228 0 2 0.447715 2 1V17C2 17.5523 1.55228 18 1 18C0.447715 18 0 17.5523 0 17V1C0 0.447715 0.447715 0 1 0ZM9 0C9.55229 0 10 0.447715 10 1V17C10 17.5523 9.55229 18 9 18C8.44771 18 8 17.5523 8 17V1C8 0.447715 8.44771 0 9 0Z" fill="white"/>
                 </svg>

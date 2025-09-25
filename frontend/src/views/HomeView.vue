@@ -58,7 +58,7 @@
                 } catch (e) {}
             },
             openLink (link) {
-                window.Telegram.WebApp.openTelegramLink(link);
+                window.Telegram.WebApp.openLink(link);
             },
             getDate (date) {
                 if (!date) return "";

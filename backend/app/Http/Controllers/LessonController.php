@@ -34,10 +34,12 @@ class LessonController extends Controller
         $hint = $question["hint"];
         if ($hint == null) response()->json(["hint" => "Отсутствует"]);
 
-        if ($user->free_hints === 0 AND $user->hints === 0) return response()->json(["hint" => "У вас не осталось подсказок"]);
+        if ($user->free_hints === 0 AND $user->hints === 0 AND $user->is_sub == 0) return response()->json(["hint" => "У вас не осталось подсказок"]);
 
-        if ($user->free_hints > 0) $user->free_hints -= 1;
-        else if ($user->hints > 0) $user->hints -= 1;
+        if ($user->is_sub == 0) {
+            if ($user->free_hints > 0) $user->free_hints -= 1;
+            else if ($user->hints > 0) $user->hints -= 1;
+        }
 
         $user->save();
         utils::addData($user, "uses_hints", 1);

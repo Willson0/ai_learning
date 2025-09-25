@@ -167,14 +167,16 @@ export default {
             if (this.hints[this.lessonNumber] !== undefined)
                 return openOverlay("lesson_hint_overlay", "lesson_hint_background");
 
-            if (this.user.free_hints === 0 && this.user.hints === 0) return notify("У вас нет больше нет подсказок!", 1);
+            if (this.user.free_hints === 0 && this.user.hints === 0 && this.user.is_sub === 0) return notify("У вас нет больше нет подсказок!", 1);
 
             openOverlay("lesson_hint_overlay", "lesson_hint_background");
             this.hints[this.lessonNumber] = "Загрузка...";
 
             let newUser = {...this.user};
-            if (newUser.free_hints > 0) newUser.free_hints--;
-            else if (newUser.hints > 0) newUser.hints--;
+            if (newUser.is_sub === 0) {
+                if (newUser.free_hints > 0) newUser.free_hints--;
+                else if (newUser.hints > 0) newUser.hints--;
+            }
             this.$store.dispatch("updateUser", newUser);
 
             await axios.post(config.backend + "lesson/" + this.lesson.id + "/hint/" + this.lessonNumber, {
@@ -247,7 +249,8 @@ export default {
             </svg>
         </div>
         <div class="lesson_hint_overlay_title">Подсказка</div>
-        <div class="lesson_hint_overlay_description" v-if="user.free_hints > 0">Бесплатных подсказок осталось: {{ user.free_hints }}</div>
+        <div class="lesson_hint_overlay_description" v-if="user.is_sub !== 0">Подсказок осталось: безлимит</div>
+        <div class="lesson_hint_overlay_description" v-else-if="user.free_hints > 0">Бесплатных подсказок осталось: {{ user.free_hints }}</div>
         <div class="lesson_hint_overlay_description" v-else>Подсказок осталось: {{ user.hints }}</div>
         <div class="lesson_hint_overlay_content">{{ hints[lessonNumber] }}</div>
     </div>

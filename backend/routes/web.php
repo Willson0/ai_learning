@@ -85,6 +85,7 @@ Route::group(["prefix" => "api"], function () {
 
     Route::group(["prefix" => "subscription", "middleware" => CheckTelegram::class], function () {
         Route::post("/trial", [SubscriptionController::class, "trial"]);
+        Route::post("/buy", [SubscriptionController::class, "buy"]);
     });
 
     Route::group(["prefix" => "payment"], function () {

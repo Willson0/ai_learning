@@ -251,6 +251,8 @@ export default {
                     window.addEventListener('touchmove', this.onMoveDrag);
                     window.addEventListener('mouseup', this.onEndDrag);
                     window.addEventListener('touchend', this.onEndDrag);
+
+                    document.documentElement.classList.add('user-unselect');
                 }
                 el.addEventListener('mousedown', onmousedown);
                 el.addEventListener('touchstart', onmousedown);
@@ -267,6 +269,7 @@ export default {
             }
         },
         onEndDrag(e) {
+            document.documentElement.classList.remove('user-unselect');
             if (!this.dragging) return;
 
             let el = this.draggingOverlay;

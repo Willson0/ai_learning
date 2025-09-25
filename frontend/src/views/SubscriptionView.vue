@@ -100,6 +100,18 @@ export default {
             }).catch((error) => {
                 notify(error.response.data.message || 'Ошибка при активации подписки', 1);
             });
+        },
+        async buySubscription () {
+            if (!this.user.payment_method_id) return this.openAddCard();
+            if (!confirm("Вы уверены, что хотите приобрести подписку?")) return;
+
+            await axios.post(config.backend + "subscription/buy", {
+                initData: window.Telegram.WebApp.initData,
+            }).then((response) => {
+                notify("Запрос на активацию подписки отправлен", 0);
+            }).catch((error) => {
+                notify(error.response.data.message || 'Ошибка при активации подписки', 1);
+            });
         }
     },
 }
@@ -158,12 +170,12 @@ export default {
                         </svg>
                     </div>
                     <div class="home_supportChat_main_upper_name">
-                        Бесплатный
+                        {{ user.is_sub ? 'Активная подписка' : 'Бесплатный' }}
                     </div>
                 </div>
-                <div class="home_supportChat_main_downer">
+                <div v-if="user.is_sub === 0" class="home_supportChat_main_downer">
                     <div></div>
-                    <button>Улучшить тариф</button>
+                    <button @click="buySubscription">Улучшить тариф</button>
                 </div>
             </div>
             <div class="subscription_your_loyalty">

@@ -32,12 +32,27 @@ class CheckSubs extends Command
         $users = User::whereNotNull("sub_date")->where('sub_date', '<=', Carbon::now())->get();
         foreach ($users as $user) {
             if ($user->autopayment == 1 && $user->payment_method_id != null) {
+                $formattedPrice = env('SUB_PRICE', '300.00');
+                if ($user->spend_bonus && $user->bonus > 0) {
+                    $subPrice = env('SUB_PRICE', '300.00');
+
+                    $subPriceValue = floatval($subPrice);
+                    $maxPoints = $subPriceValue * 0.2;
+                    $usedPoints = min($user->bonus, $maxPoints);
+                    $finalPrice = $subPriceValue - $usedPoints;
+
+                    $user->bonus -= $usedPoints;
+                    $user->save();
+
+                    $formattedPrice = number_format($finalPrice, 2, '.', '');
+                }
+
                 $client = new Client();
                 $client->setAuth(env("SHOP_ID"), env("YOOKASSA_API_KEY"));
                 $response = $client->createPayment(
                     [
                         'amount' => [
-                            'value' => env("SUB_PRICE"),
+                            'value' => $formattedPrice,
                             'currency' => 'RUB',
                         ],
                         'capture' => true,

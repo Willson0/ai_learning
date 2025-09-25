@@ -316,14 +316,14 @@ class AdminController extends Controller
 
         $support->save();
 
-        try {
-            $user = User::find($support->user_id);
-            Telegram::sendMessage([
-                "chat_id" => $user->telegram_id,
-                "text" => "*🔔 Вам пришло новое сообщение в поддержку*",
-                "parse_mode" => "MarkdownV2"
-            ]);
-        } catch (\Exception $e) {}
+//        try {
+//            $user = User::find($support->user_id);
+//            Telegram::sendMessage([
+//                "chat_id" => $user->telegram_id,
+//                "text" => "*🔔 Вам пришло новое сообщение в поддержку*",
+//                "parse_mode" => "MarkdownV2"
+//            ]);
+//        } catch (\Exception $e) {}
 
         return $this->supports();
     }

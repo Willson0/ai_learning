@@ -35,6 +35,7 @@ class AuthController extends Controller
                 "avatar" => $request["initData"]["user"]["photo_url"],
                 "autopayment" => true,
                 "bonus" => 0,
+                "tokens" => 10,
                 "spend_bonus" => false,
                 "from_user_id" => null,
                 "card" => null,

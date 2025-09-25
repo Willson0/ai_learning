@@ -292,7 +292,7 @@
                             Удалить
                         </button>
                     </div>
-                    <div v-if="expandedQuestionIndex === key" class="answers-menu">
+                    <div v-if="expandedQuestionIndex === key" class="answers-menu" style="background-color:#121527;">
                         <div v-for="(answer, answerIdx) in selectedLesson.questions[expandedQuestionIndex].answers" class="answer-item">
                             <label>
                                 <input
@@ -301,7 +301,7 @@
                                     :checked="selectedLesson.questions[expandedQuestionIndex].right_answer === answerIdx"
                                     @change="setCorrectAnswer(expandedQuestionIndex, answerIdx)"
                                 />
-                                <input
+                                <input style="color: white;"
                                     v-model="selectedLesson.questions[expandedQuestionIndex].answers[answerIdx]"
                                     class="edit-answer-input"
                                     type="text"
@@ -311,6 +311,16 @@
                                 Удалить
                             </button>
                         </div>
+                        <div style="width: 100%;">
+                            <label style="width: 100%; display:flex;">
+                                Подсказка:
+                                <input style="color: white;"
+                                    v-model="selectedLesson.questions[expandedQuestionIndex].hint"
+                                    class="edit-answer-input"
+                                    type="text"
+                                />
+                            </label>
+                        </div>
                         <button class="add-btn" @click="addAnswer(expandedQuestionIndex)">Добавить ответ</button>
                     </div>
                 </template>
@@ -319,7 +329,7 @@
     </div>
     <adminnav>
         <div class="admin_courses">
-            <div class="container">
+            <div class="container" style="margin: 0 !important">
                 <div class="grid">
                     <!-- Sidebar: Course list -->
                     <div class="panel" id="coursesPanel">
@@ -691,7 +701,8 @@ textarea {
     color: var(--text);
     outline: none;
     transition: border-color .15s ease, box-shadow .15s ease;
-    font-size: 14px
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
 textarea {
