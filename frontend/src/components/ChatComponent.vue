@@ -256,7 +256,6 @@ export default {
         },
         async inactiveMicrophone (needSend = false) {
             if (this.mediaRecorder) {
-                this.mediaRecorder.stop();
                 this.mediaRecorder.onstop = async () => {
                     this.audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
                     this.audioChunks = [];
@@ -270,6 +269,7 @@ export default {
                         if (needSend) this.sendMessage();
                     });
                 };
+                this.mediaRecorder.stop();
             }
             this.cancelRecording();
         },
