@@ -388,7 +388,7 @@ class utils
             'audio/wav' => 'wav',
             'audio/ogg' => 'ogg',
             'audio/mp3', 'audio/mpeg' => 'mp3',
-            'audio/mp4' => 'm4a',
+            'audio/mp4', 'video/mp4' => 'm4a',
             default => 'dat',
         };
         Log::critical("ORIGINAL MIME $mime");
