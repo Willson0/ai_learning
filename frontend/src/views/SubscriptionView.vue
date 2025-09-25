@@ -151,7 +151,7 @@ export default {
         <div id="subscription_overlay"></div>
     </div>
     <div class="subscription">
-        <div class="subscription_trial" v-if="user.used_trial !== 1">
+        <div class="subscription_trial" v-if="user.used_trial !== 1 && user.is_sub === 0">
             <div class="subscription_trial_title">Пробная подписка на 7 дней</div>
             <div class="subscription_trial_description">Попробуйте расширенные функции с пробной подпиской</div>
             <button @click="activeTrial">Подключить</button>
