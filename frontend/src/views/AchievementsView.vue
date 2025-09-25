@@ -64,7 +64,7 @@ export default {
         <button v-else-if="hasAchievement(selectedAchievement)" @click="unpin(selectedAchievement.id)">Открепить от витрины</button>
     </div>
     <div class="achievements" v-if="user.achievements">
-        <div class="achievements_title">Получено достиежний</div>
+        <div class="achievements_title">Получено достижений</div>
         <div class="home_learning_progress">
             <div class="home_learning_progress_bar" :style="{width: (this.user.achievements.filter(ach => hasAchievement(ach)).length / this.user.achievements.length) * 100 + '%'}">
                 <div>{{ this.user.achievements.filter(ach => hasAchievement(ach)).length }}/{{ this.user.achievements.length }}</div>
