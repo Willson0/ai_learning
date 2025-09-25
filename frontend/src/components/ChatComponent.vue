@@ -2,7 +2,6 @@
 import axios from "axios";
 import config from "@/config.json";
 import {deepParse, notify, toLink} from "@/utils.js";
-import AudioRecorderPolyfill from 'audio-recorder-polyfill'
 
 export default {
     name: "ChatComponent",
@@ -27,7 +26,6 @@ export default {
         }
     },
     async mounted () {
-        window.MediaRecorder = AudioRecorderPolyfill;
         await this.initChat();
     },
     methods: {
