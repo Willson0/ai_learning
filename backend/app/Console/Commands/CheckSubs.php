@@ -68,8 +68,8 @@ class CheckSubs extends Command
                     "is_autopayment" => 1,
                     "payment_id" => $paymentID,
                     "is_bought" => false,
-                    "summa" => intval(env("SUB_PRICE")),
-                    "days" => 30,
+                    "summa" => intval($formattedPrice),
+                    "amount" => 30,
                 ]);
             }
         }

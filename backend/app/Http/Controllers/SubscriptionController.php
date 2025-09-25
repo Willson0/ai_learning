@@ -65,8 +65,8 @@ class SubscriptionController extends Controller
             "is_autopayment" => 0,
             "payment_id" => $paymentID,
             "is_bought" => false,
-            "summa" => intval(env("SUB_PRICE")),
-            "days" => 30,
+            "summa" => intval($formattedPrice),
+            "amount" => 30,
         ]);
 
         return response()->json(["ok" => true]);
