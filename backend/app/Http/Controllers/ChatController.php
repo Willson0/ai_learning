@@ -95,8 +95,8 @@ class ChatController extends Controller
             $response = Http::withToken(env('OPENAI_TOKEN'))
                 ->attach(
                     'file',
-                    fopen($audioFile->getRealPath(), 'r'),
-                    $audioFile->getClientOriginalName()
+                    fopen($fullPath, 'r'),
+                    basename($fullPath)
                 )
                 ->asMultipart()
                 ->post('https://api.openai.com/v1/audio/transcriptions', [
