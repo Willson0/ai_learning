@@ -2,6 +2,8 @@
 import axios from "axios";
 import config from "@/config.json";
 import {deepParse, notify, toLink} from "@/utils.js";
+import AudioRecorderPolyfill from 'audio-recorder-polyfill'
+window.MediaRecorder = AudioRecorderPolyfill
 
 export default {
     name: "ChatComponent",
@@ -256,8 +258,12 @@ export default {
             if (this.mediaRecorder) {
                 this.mediaRecorder.stop();
                 this.mediaRecorder.onstop = async () => {
-                    this.audioBlob = new Blob(this.audioChunks);
+                    this.audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
                     this.audioChunks = [];
+
+                    if (this.audioBlob.size < 1000) {
+                        alert("Запись не удалась. Файл пуст или повреждён.");
+                    }
 
                     this.generateAudioSVG(this.audioBlob).then((response) => {
                         this.waveform = response;

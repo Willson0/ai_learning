@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "audio-recorder-polyfill": "^0.4.1",
     "axios": "^1.11.0",
     "marked": "^16.2.1",
     "vue": "^3.5.18",
