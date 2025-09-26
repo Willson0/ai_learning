@@ -11,13 +11,16 @@ export default {
     },
     methods: {
         toLink,
+        openFaq () {
+            window.Telegram.WebApp.openLink(config.faq)
+        }
     }
 }
 </script>
 
 <template>
     <div class="help">
-        <div class="help_faq" @click="window.Telegram.WebApp.openLink(config.faq)">
+        <div class="help_faq" @click="openFaq">
             FAQ
         </div>
         <div class="home_supportChat_main">
