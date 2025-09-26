@@ -198,7 +198,7 @@ export default {
     <div class="profile" v-if="us != null && isFriends === false">
         {{ averageColor }}
         <div class="profile_header">
-            <img class="profile_header_avatar" ref="avatar" :src="us.avatar" alt="">
+            <img class="profile_header_avatar" ref="avatar" :src="us.avatar.startsWith('http') ? us.avatar : config.storage + us.avatar" alt="">
             <img id="avatar_background" :src="us.avatar.startsWith('http') ? us.avatar : config.storage + us.avatar" alt="">
             <div id="avatar_background_black"></div>
             <div class="profile_header_text">
