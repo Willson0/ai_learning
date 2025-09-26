@@ -70,7 +70,7 @@ import config from "@/config.json";
         <div class="profile_friends" v-if="friends" @click="toLink('rating')">
             <div class="profile_friends_title">{{ friends.length }} {{ getRussianFriends(friends.length) }}</div>
             <div class="profile_friends_avatars">
-                <img v-for="friend in friends.slice(0, 3)" :src="friend.avatar" alt="">
+                <img v-for="friend in friends.slice(0, 3)" :src="friend.avatar.startsWith('http') ? friend.avatar : config.storage + friend.avatar" alt="">
             </div>
         </div>
         <div @click="toLink('achievements')" class="profile_achievements">

@@ -225,7 +225,7 @@ export default {
                 <div class="profile_friends_count">{{ commonFriends?.length }} общих</div>
             </div>
             <div class="profile_friends_avatars">
-                <img v-for="friend in friends.slice(0, 3)" :src="friend.avatar" alt="">
+                <img v-for="friend in friends.slice(0, 3)" :src="friend.avatar.startsWith('http') ? friend.avatar : config.storage + friend.avatar" alt="">
             </div>
         </div>
         <div style="cursor: auto" class="profile_achievements">
