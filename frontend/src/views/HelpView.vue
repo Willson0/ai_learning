@@ -1,15 +1,23 @@
 <script>
 import {toLink} from "@/utils.js";
+import config from "@/config.json"
 
 export default {
     name: "HelpView",
-    methods: {toLink}
+    data () {
+        return {
+            config: config,
+        }
+    },
+    methods: {
+        toLink,
+    }
 }
 </script>
 
 <template>
     <div class="help">
-        <div class="help_faq">
+        <div class="help_faq" @click="window.Telegram.WebApp.openLink(config.faq)">
             FAQ
         </div>
         <div class="home_supportChat_main">
