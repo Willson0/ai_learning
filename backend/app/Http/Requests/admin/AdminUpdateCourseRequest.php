@@ -26,6 +26,7 @@ class AdminUpdateCourseRequest extends FormRequest
             "description" => "string",
             "level" => "integer",
             "required_courses" => "nullable|exists:courses,id",
+            "subject_id" => "nullable|integer|exists:subjects,id"
         ];
     }
 }

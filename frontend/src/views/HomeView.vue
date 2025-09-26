@@ -125,7 +125,7 @@
                     if (elapsedMs < 200 && elapsedPx < 20) {
                         let newSelected = Math.round(Math.abs(this.transformX) / document.querySelector(".profile_news").clientWidth);
                         for (let i = 0; i < this.user.ads.length; i++) {
-                            if (newSelected === i + 1) window.Telegram.WebApp.openTelegramLink(this.user.ads[i].link);
+                            if (newSelected === i + 1) window.Telegram.WebApp.openLink(this.user.ads[i].link);
                         }
                         return;
                     }

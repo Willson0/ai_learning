@@ -26,6 +26,7 @@ class AdminCreateCourseRequest extends FormRequest
             "title" => "required|string",
             "description" => "required|string",
             "required_course" => "required",
+            "subject_id" => "required|integer|exists:subjects,id"
         ];
     }
 }

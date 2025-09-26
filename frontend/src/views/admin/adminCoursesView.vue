@@ -14,6 +14,7 @@
                 expandedQuestionIndex: null,
                 newFile: null,
                 config: config,
+                subjects: [],
             }
         },
         components: {
@@ -27,6 +28,11 @@
             }).then((response) => {
                 this.courses = response.data.courses;
                 this.levels = response.data.levels;
+            })
+            await axios.get (config.backend + "admin/subjects", {
+                withCredentials: true
+            }).then((response) => {
+                this.subjects = response.data;
             })
         },
         methods: {
@@ -220,6 +226,7 @@
                     level: 1,
                     required_course: 0,
                     lessons: [],
+                    subject_id: this.subjects[0]?.id,
                 });
                 alert("Чтобы курс появился, нужно сохранить его!")
             }
@@ -394,6 +401,12 @@
                                     <div class="form-row">
                                         <label class="label">Изменён</label>
                                         <input :value="formatDateUTC(selectedCourse.updated_at)" class="input readonly" id="c_updated" readonly> </div>
+                                    <div class="form-row">
+                                        <label class="label">Обязательный курс (ID)</label>
+                                        <select id="c_prereq" v-model="selectedCourse.subject_id">
+                                            <option v-for="subject in subjects" :value="subject.id">({{subject.id}}) {{ subject.name }}</option>
+                                        </select>
+                                    </div>
                                     <button @click="saveCourse" style="text-align:center; display: block !important" class="btn" id="deleteCourseBtn" title="Удалить курс">
                                         {{ selectedCourse.id ? "Сохранить" : "Создать" }}
                                     </button>

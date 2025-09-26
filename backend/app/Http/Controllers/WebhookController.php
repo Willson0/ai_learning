@@ -25,7 +25,7 @@ class WebhookController extends Controller
                     "username" => $requestUser["username"] ?? "",
                     "fullname" => $requestUser["first_name"] ??
                             $requestUser["last_name"] ?? $requestUser["username"],
-                    "avatar" => $requestUser["photo_url"] ?? "",
+                    "avatar" => "default_avatar.svg",
                     "autopayment" => true,
                     "bonus" => 0,
                     "tokens" => 10,
