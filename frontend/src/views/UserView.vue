@@ -199,7 +199,7 @@ export default {
         {{ averageColor }}
         <div class="profile_header">
             <img class="profile_header_avatar" ref="avatar" :src="us.avatar" alt="">
-            <img :src="us.avatar" id="avatar_background" alt="">
+            <img id="avatar_background" :src="us.avatar.startsWith('http') ? us.avatar : config.storage + us.avatar" alt="">
             <div id="avatar_background_black"></div>
             <div class="profile_header_text">
                 <div class="profile_header_name">{{ us.fullname }}</div>

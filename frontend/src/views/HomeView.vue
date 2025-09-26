@@ -316,7 +316,7 @@
             <div class="home_rating_list">
                 <div @click="toLink('user', us.id)" v-for="(us, key) in user.friends?.sort((a, b) => Number(b.total_points) - Number(a.total_points))?.slice(0, 3)">
                     <div class="home_rating_list_number" :style="{background: topColors[key+1]}"><div>{{ key+1 }}</div></div>
-                    <img :src="us.avatar" alt="">
+                    <img :src="us.avatar.startsWith('http') ? us.avatar : config.storage + us.avatar" alt="">
                     <div class="home_rating_list_name">{{ us.fullname }}</div>
                     <div class="home_rating_list_points">{{ us.total_points }} {{ getRussianPoints(Number(us.total_points)) }}</div>
                 </div>

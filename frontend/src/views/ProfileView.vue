@@ -162,7 +162,7 @@ import config from "@/config.json";
                 <div class="profile_referral_links_title">Активные приглашения</div>
                 <div class="profile_referral_links_list">
                     <div @click="toLink('user', us.id)" v-for="us in user.referrals">
-                        <img :src="us.avatar" alt="">
+                        <img :src="us.avatar.startsWith('http') ? us.avatar : config.storage + us.avatar" alt="">
                         <div>{{ us.fullname }}</div>
                     </div>
                 </div>

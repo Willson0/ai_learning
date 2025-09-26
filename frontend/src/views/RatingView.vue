@@ -17,7 +17,8 @@ export default {
                 1: "#FFB800",
                 2: "#96C7FF",
                 3: "#E4865E",
-            }
+            },
+            config: config,
         }
     },
     computed: {
@@ -96,7 +97,7 @@ export default {
         <div class="home_rating_list rating_list">
             <div @click="toLink('user', us.id)" v-for="(us, key) in user.friends?.filter(fr => fr.is_accepted === 1 && fr.fullname.trim().toLowerCase().includes((search || '')?.trim()?.toLowerCase()))?.sort((a, b) => Number(b.total_points) - Number(a.total_points))">
                 <div class="home_rating_list_number" :style="{background: key < 3 ? topColors[key + 1] : ''}"><div>{{ key+1 }}</div></div>
-                <img :src="us.avatar" alt="">
+                <img :src="us.avatar.startsWith('http') ? us.avatar : config.storage + us.avatar" alt="">
                 <div class="rating_list_user_info">
                     <div class="home_rating_list_name">{{ us.fullname }}</div>
                     <div class="home_rating_list_points">{{ us.total_points }} {{ getRussianPoints(Number(us.total_points)) }}</div>

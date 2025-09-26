@@ -7,6 +7,7 @@ export default {
     data () {
         return {
             isLoading: false,
+            config: config,
         }
     },
     async mounted () {
@@ -81,7 +82,7 @@ export default {
             <div v-if="(user.notifications?.filter(n => n.read === 0)?.length === 0) && (user.friends?.filter(fr => (fr.is_accepted === 0) && (fr.receiver_id === user.id)))" style="margin-top: 20px;">Тут пока что ничего нет...</div>
             <div class="notification_new_list" v-if="user.friends?.filter(fr => (fr.is_accepted === 0) && (fr.receiver_id === user.id))?.length !== 0">
                 <div v-for="us in user.friends?.filter(fr => (fr.is_accepted === 0) && (fr.receiver_id === user.id))">
-                    <img :src="us.avatar" alt="">
+                    <img :src="us.avatar.startsWith('http') ? us.avatar : config.storage + us.avatar" alt="">
                     <div>
                         <div class="notification_new_list_title">Запрос в друзья</div>
                         <div class="notification_new_list_description">{{ us.fullname }} хочет добавить вас в друзья</div>
