@@ -2,9 +2,11 @@
 import axios from "axios";
 import config from "@/config.json";
 import {deepParse, notify, toLink} from "@/utils.js";
+import KatexRender from "@/components/KatexComponent.vue";
 
 export default {
     name: "ChatComponent",
+    components: {KatexRender},
     data () {
         return {
             chat: null,
@@ -310,7 +312,7 @@ export default {
         rx="2" ry="2" fill="#fff"/>`;
             }).join('');
         },
-        async playAudio (blob, svg, key) {
+        playAudio (blob, svg, key) {
             if (this.activeAudio === key) {
                 if (this.audio != null && !this.audio.paused) {
                     this.isAudioPaused = true;
@@ -327,9 +329,13 @@ export default {
             if (this.audio != null) this.audio.pause();
 
             this.activeAudio = key;
-            this.audio = new Audio(URL.createObjectURL(blob));
+
+            this.audio = new Audio();
+            this.audio.src = URL.createObjectURL(blob);
+            this.audio.load();
+            this.audio.play();
+
             this.isAudioPaused = false;
-            await this.audio.play();
 
             this.audio.addEventListener('ended', () => {
                 this.isAudioPaused = true;
@@ -437,7 +443,9 @@ export default {
                         </svg>
                     </div>
                     <template v-else>
-                        <div style="white-space: pre-line;">{{ typeof message.content === "string" ? message.content : message.content?.find(item => item.type === "text").text }}</div>
+                        <div v-if="message.role === 'user'">{{  typeof message.content === 'string' ? message.content : message.content?.find(item => item.type === 'text').text }}</div>
+                        <katex-render v-else :text="typeof message.content === 'string' ? message.content : message.content?.find(item => item.type === 'text').text"/>
+                        <!--                     <div style="white-space: pre-line;">{{ typeof message.content === "string" ? message.content : message.content?.find(item => item.type === "text").text }}</div>-->
                         <div class="chat_main_messages_picture" v-if="typeof message.content !== 'string'">
                             <img :src="message.content?.find(item => item.type === 'image_url')?.image_url?.url" alt="">
                         </div>
