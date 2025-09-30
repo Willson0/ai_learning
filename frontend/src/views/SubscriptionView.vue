@@ -86,18 +86,28 @@ export default {
             if (this.user.payment_method_id == null) return this.openAddCard();
             if (!confirm('Вы действительно хотите активировать пробную подписку?')) return;
 
-            let newUser = {...this.user};
-            newUser.used_trial = 1;
-            newUser.is_sub = 1;
-            newUser.sub_date = new Date();
-            newUser.sub_date.setDate(newUser.sub_date.getDate() + 7);
-            this.$store.commit('setUser', newUser);
-
             await axios.post(config.backend + "subscription/trial", {
                 initData: window.Telegram.WebApp.initData,
             }).then((response) => {
-               notify("Пробная подписка активирована", 0);
+                notify("Пробная подписка активирована", 0);
+
+                let newUser = {...this.user};
+                newUser.used_trial = 1;
+                newUser.is_sub = 1;
+                newUser.sub_date = new Date();
+                newUser.sub_date.setDate(newUser.sub_date.getDate() + 7);
+                this.$store.commit('setUser', newUser);
             }).catch((error) => {
+                if (error.response.status === 420) {
+                    let link = error.response.data.channel;
+                    if (link.startsWith('@')) link = link.split('@')[1];
+                    link = "https://t.me/" + link;
+
+                    if (confirm(`Для активации требуется подписка на телеграм канал ${error.response.data.channel}. Перейти?`))
+                        window.Telegram.WebApp.openTelegramLink(link);
+                    return;
+                }
+
                 notify(error.response.data.message || 'Ошибка при активации подписки', 1);
             });
         },

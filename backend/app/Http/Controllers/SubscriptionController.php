@@ -6,6 +6,7 @@ use App\Models\Payment;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use YooKassa\Client;
 
 class SubscriptionController extends Controller
@@ -15,6 +16,27 @@ class SubscriptionController extends Controller
         if ($user->user_trial == 1) abort(403,"Пробная подписка уже использовалась");
         if ($user->is_sub == 1) abort(403,"У вас уже есть подписка");
         if ($user->payment_method_id == null) abort(403,"У вас не выбрана оплата");
+
+        $botToken = env("TELEGRAM_BOT_TOKEN");
+        $apiUrl = "https://api.telegram.org/bot{$botToken}/getChatMember";
+
+        $response = Http::get($apiUrl, [
+            'chat_id' => env("TG_CHANNEL"),
+            'user_id' => $user->telegram_id,
+        ]);
+
+        $inChannel = false;
+        if ($response->failed()) $inChannel = false;
+        else {
+            $result = $response->json();
+            if (isset($result['ok']) && $result['ok']) {
+                $status = $result['result']['status'];
+                if ($status === 'member' || $status === 'administrator' || $status === 'creator')
+                    $inChannel = true;
+                else $inChannel = false;
+            }
+        }
+        if (!$inChannel) return response(json_encode(["channel" => env("TG_CHANNEL")]), 420);
 
         $user->used_trial = 1;
         $user->is_sub = 1;
