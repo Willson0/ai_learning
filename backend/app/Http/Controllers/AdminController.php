@@ -29,6 +29,7 @@ use App\Models\Subject;
 use App\Models\Support;
 use App\Models\User;
 use App\Models\Variant;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -90,6 +91,18 @@ class AdminController extends Controller
         }
 
         return $user;
+    }
+
+    public function giveSubscription (User $user, Request $request) {
+        $days = $request->days;
+        if ($days === 0) $user->is_sub = 0;
+        else {
+            $user->is_sub = 1;
+            $user->sub_date = Carbon::now()->addDays($days);
+        }
+        $user->save();
+
+        return User::find($user->id);
     }
 
     public function courses () {

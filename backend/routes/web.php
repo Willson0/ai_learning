@@ -115,6 +115,7 @@ Route::group(["prefix" => "api"], function () {
         Route::prefix('users')->group(function () {
             Route::get('/', [AdminController::class, 'users']);
             Route::get('{user}', [AdminController::class, 'showUser']);
+            Route::post("{user}/sub", [AdminController::class, 'giveSubscription']);
         });
         Route::prefix('courses')->group(function () {
             Route::get('/', [AdminController::class, 'courses']);

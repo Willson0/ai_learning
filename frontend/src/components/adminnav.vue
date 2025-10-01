@@ -120,9 +120,9 @@ export default {
             <div class="adminnav_main_nav_background"></div>
             <div class="adminnav_main_nav_website">
                 <div class="adminnav_main_nav_website_logo">
-                    <img src="/logo.png" alt="">
+<!--                    <img src="/logo.png" alt="">-->
                 </div>
-                <p>CoinQuest</p>
+                <p>AiModi</p>
             </div>
             <div class="adminnav_main_nav_line"></div>
             <div class="adminnav_main_nav_main">

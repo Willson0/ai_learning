@@ -3,6 +3,7 @@ import adminnav from "@/components/adminnav.vue";
 import axios from "axios";
 import config from "@/config.json";
 import {notify, removeLoading} from "@/assets/admin.js";
+import {deepParse, getDate} from "../../utils.js";
 
 export default {
     name: "adminShowView.vue",
@@ -17,6 +18,7 @@ export default {
         }
     },
     methods: {
+        getDate,
         formatDate(dateStr) {
             if (!dateStr) return;
 
@@ -27,6 +29,19 @@ export default {
         formatDateUTC(dateStr) {
             let date = new Date(dateStr);
             return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+        },
+        giveSubscription () {
+            let input = "";
+            while (input === "" || isNaN(Number(input))) {
+                input = prompt("Введите количество дней подписки (0 для удаления подписки): ");
+                if (!input) return;
+            }
+            axios.post(config.backend + "admin/users/" + this.user.id + "/sub", {
+                days: Number(input),
+            }).then((response) => {
+                this.user = deepParse(response.data);
+                alert ("Успешно поставлено " + input + " дней подписки");
+            })
         }
     },
     async mounted() {
@@ -81,6 +96,12 @@ export default {
 <!--            </div>-->
         </section>
 
+        <div class="admin_user_sub">
+            <div v-if="user.is_sub === 1">Подписка активна до: {{ getDate(user.sub_date.replace(' ', 'T') + 'Z') }}</div>
+            <div v-else>Подписка неактивна</div>
+            <button @click="giveSubscription">Выдать подписку</button>
+        </div>
+
         <!-- Курсы -->
         <section aria-label="Список пройденных курсов">
             <h3 class="section-title">Пройденные курсы</h3>
@@ -108,4 +129,18 @@ export default {
 </template>
 
 <style scoped>
+ .admin_user_sub {
+     display: flex;
+     flex-direction: row;
+     gap: 20px;
+ }
+ .admin_user_sub>button {
+     padding: 8px 16px;
+     border-radius: 10px;
+     background-color: #1E1E2F;
+     transition: 0.2s;
+ }
+ .admin_user_sub>button:hover {
+     background-color: #2a2a42;
+ }
 </style>
