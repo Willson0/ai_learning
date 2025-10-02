@@ -384,7 +384,7 @@ export default {
                 content: lastMsg.content + this.streamBuffer,
             });
             this.streamBuffer = '';
-        }, 120),
+        }, 1000),
         isMathFormulaClosed (text) {
             const matches = text.match(/\$\$/g);
             return !matches || matches.length % 2 === 0;
