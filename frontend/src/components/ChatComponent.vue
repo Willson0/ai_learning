@@ -373,19 +373,22 @@ export default {
             });
         },
         updateLastMessage: debounce(function() {
-            // Получаем последнее сообщение
             if (!this.streamBuffer) return;
             const lastIndex = this.chat.dialog.length - 1;
             if (lastIndex < 0) return;
-            // Делаем обязательно через новую ссылку, чтобы Vue увидел изменения (особенно если это объект в массиве)
             const lastMsg = this.chat.dialog[lastIndex];
+            if (!this.isMathFormulaClosed(lastMsg.content + this.streamBuffer)) return;
+
             this.$set(this.chat.dialog, lastIndex, {
                 ...lastMsg,
                 content: lastMsg.content + this.streamBuffer,
             });
-            // Очищаем буфер
             this.streamBuffer = '';
-        }, 120)
+        }, 120),
+        isMathFormulaClosed (text) {
+            const matches = text.match(/\$\$/g);
+            return !matches || matches.length % 2 === 0;
+        },
     },
     props: {
         chat_id: {
