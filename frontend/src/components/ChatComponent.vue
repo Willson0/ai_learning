@@ -444,7 +444,8 @@ export default {
                     </div>
                     <template v-else>
                         <div v-if="message.role === 'user'">{{  typeof message.content === 'string' ? message.content : message.content?.find(item => item.type === 'text').text }}</div>
-                        <katex-render v-else :text="typeof message.content === 'string' ? message.content : message.content?.find(item => item.type === 'text').text"/>
+<!--                        <katex-render v-else :text="typeof message.content === 'string' ? message.content : message.content?.find(item => item.type === 'text').text"/>-->
+                        <div v-else v-html="typeof message.content === 'string' ? message.content : message.content?.find(item => item.type === 'text').text"></div>
                         <!--                     <div style="white-space: pre-line;">{{ typeof message.content === "string" ? message.content : message.content?.find(item => item.type === "text").text }}</div>-->
                         <div class="chat_main_messages_picture" v-if="typeof message.content !== 'string'">
                             <img :src="message.content?.find(item => item.type === 'image_url')?.image_url?.url" alt="">
