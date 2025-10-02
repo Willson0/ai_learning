@@ -3,6 +3,7 @@ import axios from "axios";
 import config from "@/config.json";
 import {deepParse, notify, toLink} from "@/utils.js";
 import KatexRender from "@/components/KatexComponent.vue";
+import debounce from 'lodash/debounce'
 
 export default {
     name: "ChatComponent",
@@ -25,6 +26,8 @@ export default {
             audio: null,
             isAudioPaused: false,
             activeAudio: -2,
+
+            streamBuffer: '',
         }
     },
     async mounted () {
@@ -178,7 +181,11 @@ export default {
                     break;
                 }
                 this.chat.dialog[this.chat.dialog.length - 1].content += chunk;
+
+                this.streamBuffer += chunk;
+                this.updateLastMessage();
             }
+            this.updateLastMessage.flush && this.updateLastMessage.flush();
 
             requestAnimationFrame(() => {
                 const elem = document.querySelector('.chat_main');
@@ -365,6 +372,20 @@ export default {
                 this.audio.currentTime = percent * duration;
             });
         },
+        updateLastMessage: debounce(function() {
+            // Получаем последнее сообщение
+            if (!this.streamBuffer) return;
+            const lastIndex = this.chat.dialog.length - 1;
+            if (lastIndex < 0) return;
+            // Делаем обязательно через новую ссылку, чтобы Vue увидел изменения (особенно если это объект в массиве)
+            const lastMsg = this.chat.dialog[lastIndex];
+            this.$set(this.chat.dialog, lastIndex, {
+                ...lastMsg,
+                content: lastMsg.content + this.streamBuffer,
+            });
+            // Очищаем буфер
+            this.streamBuffer = '';
+        }, 120)
     },
     props: {
         chat_id: {
