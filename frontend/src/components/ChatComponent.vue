@@ -32,6 +32,7 @@ export default {
     },
     async mounted () {
         await this.initChat();
+        document.body.style.overflow = "hidden";
     },
     methods: {
         toLink,
@@ -180,7 +181,7 @@ export default {
                     this.chat.dialog.pop();
                     break;
                 }
-                this.chat.dialog[this.chat.dialog.length - 1].content += chunk;
+                // this.chat.dialog[this.chat.dialog.length - 1].content += chunk;
 
                 this.streamBuffer += chunk;
                 this.updateLastMessage();
@@ -372,19 +373,19 @@ export default {
                 this.audio.currentTime = percent * duration;
             });
         },
-        updateLastMessage: debounce(function() {
+        updateLastMessage: debounce(function () {
             if (!this.streamBuffer) return;
             const lastIndex = this.chat.dialog.length - 1;
             if (lastIndex < 0) return;
             const lastMsg = this.chat.dialog[lastIndex];
-            if (!this.isMathFormulaClosed(lastMsg.content + this.streamBuffer)) return;
-
-            this.$set(this.chat.dialog, lastIndex, {
-                ...lastMsg,
-                content: lastMsg.content + this.streamBuffer,
-            });
+            // if (!this.isMathFormulaClosed(lastMsg.content + this.streamBuffer)) return;
+            // this.chat.dialog.splice(lastIndex, 1, {
+            //     ...lastMsg,
+            //     content: (lastMsg.content ?? '') + this.streamBuffer
+            // })
+            this.chat.dialog[lastIndex].content = (lastMsg.content ?? '') + this.streamBuffer;
             this.streamBuffer = '';
-        }, 1000),
+        }, 120),
         isMathFormulaClosed (text) {
             const matches = text.match(/\$\$/g);
             return !matches || matches.length % 2 === 0;
