@@ -1667,6 +1667,18 @@ button {
     box-sizing: border-box;
     background-color: var(--addiction);
 }
+.from_assistant {
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+.from_assistant .katex {
+    max-width: 100%;
+    word-wrap: break-word;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    word-break: break-all !important;
+}
 .chat_main_messages_picture {
     width: 100%;
     max-width: 100%;
