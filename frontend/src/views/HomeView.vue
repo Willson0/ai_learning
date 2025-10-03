@@ -270,7 +270,7 @@ import axios from "axios";
             <div class="home_profile_header">
                 <div>Профиль</div>
                 <div class="home_profile_header_level">
-                    Уровень: <span>студент</span>
+                    Уровень: <span>{{ levels[user.level] }}</span>
                 </div>
             </div>
             <div class="home_profile_buttons">
