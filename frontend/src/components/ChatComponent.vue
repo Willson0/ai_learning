@@ -378,7 +378,7 @@ export default {
             const lastIndex = this.chat.dialog.length - 1;
             if (lastIndex < 0) return;
             const lastMsg = this.chat.dialog[lastIndex];
-            // if (!this.isMathFormulaClosed(lastMsg.content + this.streamBuffer)) return;
+            if (!this.isMathFormulaClosed(lastMsg.content + this.streamBuffer)) return;
             // this.chat.dialog.splice(lastIndex, 1, {
             //     ...lastMsg,
             //     content: (lastMsg.content ?? '') + this.streamBuffer
