@@ -2,7 +2,16 @@
 import NavComponent from "@/components/NavComponent.vue";
 import axios from 'axios';
 import config from "@/config.json"
-import {closeAllOverlays, closeOverlay, deepParse, endLoading, getPrevWithClass, notify, toLink} from "@/utils.js";
+import {
+    closeAllOverlays,
+    closeOverlay,
+    deepParse,
+    endLoading,
+    getPrevWithClass,
+    levels,
+    notify,
+    toLink
+} from "@/utils.js";
 import router from "@/router.js";
 import HomeView from "@/views/HomeView.vue";
 import ProfileView from "@/views/ProfileView.vue";
@@ -39,6 +48,9 @@ export default {
             draggingOverlay: null,
 
             theme: "",
+            levels: levels,
+            selectedLevel: 'self',
+            faculty: "",
         }
     },
     components: {
@@ -288,11 +300,33 @@ export default {
             this.dragging = false;
             this.dragStartY = null;
         },
+        async sendSettings () { // TODO: unique
+            if (this.selectedLevel !== 'student') this.faculty = "";
+            let newUser =
+                {...this.user, level: this.selectedLevel,
+                    faculty: this.faculty === '' ? null : this.faculty,
+                    isFirst: false};
+            this.$store.commit('setUser', newUser);
+
+            let data = {};
+            data["initData"] = window.Telegram.WebApp.initData;
+            data["level"] = this.selectedLevel;
+            data["faculty"] = this.faculty === '' ? null : this.faculty;
+
+            await axios.post(config.backend + 'auth/settings', data).then((response) => {
+                notify('Успешно сохранено')
+            }).catch((error) => {
+                alert (error.response.data.message || 'Ошибка при отправке данных. Попробуйте позже.');
+            });
+        },
     },
     computed: {
         name () {
             return window.Telegram.WebApp.initDataUnsafe?.user?.first_name;
-        }
+        },
+        user() {
+            return this.$store.state.user;
+        },
     }
 }
 </script>
@@ -303,6 +337,22 @@ export default {
 <!--        <div v-if="!notWhiteList">Добрый день, {{name}}</div>-->
 <!--        <div v-else>Вы не состоите<br>в белом списке</div>-->
     </div>
+<!--    TODO: UNIQUE -->
+    <div class="first_loading" v-if="user.isFirst === true">
+        <div class="first_loading_logo">Название</div>
+        <div class="ai_overlay_newSubject">
+            <div class="first_loading_level_title">Выберите уровень обучения</div>
+            <div class="ai_overlay_newSubject_select" id="new_select">
+                <div class="ai_overlay_newSubject_select_title">Уровень обучения</div>
+                <div class="ai_overlay_newSubject_select_main">
+                    <div v-for="(level, key) in levels" @click="selectedLevel = key" :class="{'active': selectedLevel === key}">{{level}}</div>
+                </div>
+            </div>
+            <input v-if="selectedLevel === 'student'" type="text" v-model="faculty" placeholder="Факультет" id="new_name">
+        </div>
+        <button @click="sendSettings">Сохранить</button>
+    </div>
+<!--    TODO: UNIQUE -->
     <chat-view v-if="$route.query.s === 'chat'" />
     <catalog-view v-else-if="$route.query.s === 'catalog'" />
     <article-view v-else-if="$route.query.s === 'article'" />

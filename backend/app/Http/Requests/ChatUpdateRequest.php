@@ -25,6 +25,8 @@ class ChatUpdateRequest extends FormRequest
             "name" => "nullable|string",
             "subjects" => "nullable|min:0|array",
             "subjects.*" => "nullable|integer|exists:subjects,id",
+            "level" => "nullable|string",
+            "faculty" => "nullable|string"
         ];
     }
 }

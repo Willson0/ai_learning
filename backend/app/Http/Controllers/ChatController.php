@@ -17,6 +17,13 @@ use Illuminate\Support\Facades\Storage;
 
 class ChatController extends Controller
 {
+    private $levels = [
+        '1-4' => '1-4 классе',
+        '5-9' => '5-9 классе',
+        '10-11' => '10-11 классе',
+        'student' => 'ВУЗе',
+        'self' => 'саморазвитии'
+    ];
     public function store (ChatStoreRequest $request) {
         $user = User::where("telegram_id", $request["initData"]["user"]["id"])->firstOrFail();
         $validated = $request->validated();
@@ -31,7 +38,10 @@ class ChatController extends Controller
                 . implode(", ", Subject::whereIn("id", json_decode($validated["subjects"]))->pluck("name")->toArray())
                 . ', при этом при любом другом вопросе веди тему в нужное русло (к школьным предметам), не отвечая на них.'
                 . ' Не используй ни в каком случае никакую (!) Markdown-разметку. Только текст и при надобности Можешь использовать LaTeX выражения для формул (!!!обязательно оборачивая в $ или $$)!'
-                . ' Не используй никакие ссылки. Старайся объяснить все максимально КРАТКО и ЁМКО (не больше 100 слов).'
+                . ' Не используй никакие ссылки. Старайся объяснить все максимально КРАТКО и ЁМКО (не больше 100 слов). '
+                . ' Учитывай, что пользователь находится в ' . $this->levels[$user->level]
+                . (($user->faculty != null && $user->faculty != '') ? ('(Факультет: ' . $user->faculty . ')') : '')
+                . ' и помогай ему с этим'
         ];
 //        $dialog[] = [
 //            "role" => "assistant",
@@ -56,16 +66,24 @@ class ChatController extends Controller
         $user = User::where("telegram_id", $request["initData"]["user"]["id"])->firstOrFail();
         $validated = $request->validated();
 
-        $validated["subjects"] = json_encode($validated["subjects"]);
+        if ($request->has('subjects')) $validated["subjects"] = json_encode($validated["subjects"]);
+        else $validated["subjects"] = $chat->subjects;
+
         $dialog = json_decode($chat->dialog, true);
+
+        if (!$validated["level"]) $validated["level"] = $chat->level;
+        if (!$validated["faculty"]) $validated["faculty"] = $chat->faculty;
 
         foreach ($dialog as &$item) { // <--- ВАЖНО: амперсанд!
             if (isset($item['role']) && $item['role'] === 'system') {
                 $item['content'] = "Ты чат-бот, который помогает по школьной программе ТОЛЬКО по этим предметам (никаких других): "
                     . implode(", ", Subject::whereIn("id", json_decode($validated["subjects"]))->pluck("name")->toArray())
                     . ', при этом при любом другом вопросе веди тему в нужное русло (к школьным предметам), не отвечая на них.'
-                    . ' Не используй ни в каком случае никакую (!) Markdown-разметку. Только текст и при надобности Можешь использовать LaTeX выражения для формул(!!!обязательно оборачивая в $ или $$)!'
-                    . ' Не используй никакие ссылки. Старайся объяснить все максимально КРАТКО и ЁМКО (не больше 100 слов).';
+                    . ' Не используй ни в каком случае никакую (!) Markdown-разметку. Только текст и при надобности Можешь использовать LaTeX выражения для формул (!!!обязательно оборачивая в $ или $$)!'
+                    . ' Не используй никакие ссылки. Старайся объяснить все максимально КРАТКО и ЁМКО (не больше 100 слов). '
+                    . ' Учитывай, что пользователь находится в ' . $this->levels[$validated["level"]]
+                    . (($validated["faculty"] != null && $validated["faculty"] != '') ? ('(Факультет: ' . $validated["faculty"] . ')') : '')
+                    . ' и помогай ему с этим';
                 break;
             }
         }

@@ -25,6 +25,9 @@ class AuthController extends Controller
     {
         $user = User::where("telegram_id", $request["initData"]["user"]["id"])->first();
 
+        $isFirst = false;
+        if (!$user || !$user->avatar) $isFirst = true;
+
         if (!$user) {
             $user = User::create([
                 "telegram_id" => $request["initData"]["user"]["id"],
@@ -108,6 +111,7 @@ class AuthController extends Controller
                 })
                 ->values();
         }
+        if ($isFirst) $user->isFirst = true;
 
         return response()->json($user);
     }

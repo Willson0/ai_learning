@@ -24,6 +24,8 @@ class AuthSettingsRequest extends FormRequest
         return [
             "spend_bonus" => "nullable|boolean",
             "autopayment" => "nullable|boolean",
+            'level' => "nullable|string",
+            "faculty" => "nullable|string",
         ];
     }
 }

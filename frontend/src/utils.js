@@ -426,3 +426,11 @@ export function getDate (date) {
 
     return `${dat.getDate()} ${months[dat.getMonth()]} ${dat.getHours().toString().padStart(2, '0')}:${dat.getMinutes().toString().padStart(2, '0')}`
 }
+
+export let levels = {
+    '1-4': '1-4 класс',
+        '5-9': '5-9 класс',
+        '10-11': '10-11 класс',
+        'student': 'Студент',
+        'self': 'Для себя'
+}

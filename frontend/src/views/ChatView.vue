@@ -1,6 +1,6 @@
 <script>
 import ChatComponent from "@/components/ChatComponent.vue";
-import {checkRules, closeOverlay, deepParse, notify, openOverlay, toLink} from "@/utils.js";
+import {checkRules, closeOverlay, deepParse, levels, notify, openOverlay, toLink} from "@/utils.js";
 import axios from "axios";
 import config from "@/config.json";
 
@@ -14,6 +14,10 @@ export default {
             isLoading: false,
             subjects: [],
             chatName: "",
+
+            levels: levels,
+            selectedLevel: "",
+            faculty: "",
         }
     },
     mounted () {
@@ -72,6 +76,39 @@ export default {
             if (this.subjects.length >= 3) this.subjects.shift();
             this.subjects.push(id);
         },
+        async sendSettings () {
+            if (this.selectedLevel !== 'student') this.faculty = "";
+            let newUser =
+                {...this.user, level: this.selectedLevel,
+                    faculty: this.faculty === '' ? null : this.faculty,
+                    isFirst: false};
+            this.$store.commit('setUser', newUser);
+
+            let data = {};
+            data["initData"] = window.Telegram.WebApp.initData;
+            data["level"] = this.selectedLevel;
+            data["faculty"] = this.faculty === '' ? null : this.faculty;
+
+            closeOverlay('overlay_first_loading', 'background_first_loading');
+            this.chat.level = this.selectedLevel;
+            this.chat.faculty = this.faculty;
+
+            await axios.post(config.backend + "chat/" + this.chat.id, data).then((response) => {
+                notify('Успешно сохранено');
+
+                let chats = [...this.user.chats];
+                chats = chats.filter((item) => item.id !== this.chat.id);
+                chats.push(response.data);
+
+                let newUser = deepParse({...this.user, chats: chats});
+                this.$store.commit('setUser', newUser);
+
+                this.selectedLevel = "";
+                this.faculty = "";
+            }).catch((error) => {
+                alert (error.response.data.message || 'Ошибка при отправке данных. Попробуйте позже.');
+            });
+        },
         async editChat () {
             if (this.isLoading) return;
             let rules = [
@@ -120,6 +157,25 @@ export default {
 </script>
 
 <template>
+    <div class="background_first_loading background" style="display: none" @click.stop="closeOverlay('overlay_first_loading', 'background_first_loading')"></div>
+    <div class="overlay overlay_first_loading" style="display: none">
+        <div class="overlay_closeArea">
+            <svg width="67" height="2" viewBox="0 0 67 2" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1.5 1H65.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <div class="overlay_first_loading_title">Настройки</div>
+        <div class="ai_overlay_newSubject">
+            <div class="ai_overlay_newSubject_select" id="new_select">
+                <div class="ai_overlay_newSubject_select_title">Уровень обучения</div>
+                <div class="ai_overlay_newSubject_select_main">
+                    <div v-for="(level, key) in levels" @click="selectedLevel = key" :class="{'active': selectedLevel === key}">{{level}}</div>
+                </div>
+            </div>
+            <input v-if="selectedLevel === 'student'" type="text" v-model="faculty" placeholder="Факультет" id="new_name">
+        </div>
+        <button @click="sendSettings">Сохранить</button>
+    </div>
     <div class="background ai_background_newSubject" @click="closeOverlay('ai_overlay_newSubject', 'ai_background_newSubject')" style="display: none;"></div>
     <div class="overlay ai_overlay_newSubject" style="display: none;">
         <div class="overlay_closeArea">
@@ -146,15 +202,18 @@ export default {
         <button @click="deleteChat">Удалить чат</button>
     </div>
     <div class="chat_header" v-if="chat">
-        <div>{{ chat.name }}</div>
-        <svg @click="showMenu" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="10" cy="16" r="2" fill="white"/>
-            <circle cx="16" cy="16" r="2" fill="white"/>
-            <circle cx="22" cy="16" r="2" fill="white"/>
-        </svg>
+        <div>
+            <div>{{ chat.name }}</div>
+            <svg @click="showMenu" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="10" cy="16" r="2" fill="white"/>
+                <circle cx="16" cy="16" r="2" fill="white"/>
+                <circle cx="22" cy="16" r="2" fill="white"/>
+            </svg>
+        </div>
+        <button v-if="chat.level == null && chat?.dialog?.length > 1" @click="selectedLevel = chat.level; faculty = chat.faculty; openOverlay('overlay_first_loading', 'background_first_loading')">Настроить</button>
     </div>
     <div class="chat_view">
-        <chat-component :chat_id="Number($route.query.id)" @chatload="chat = $event"/>
+        <chat-component :is-view="true" @showEdit="selectedLevel = chat.level; faculty = chat.faculty; openOverlay('overlay_first_loading', 'background_first_loading')" :chat_id="Number($route.query.id)" @chatload="chat = $event"/>
     </div>
 </template>
 

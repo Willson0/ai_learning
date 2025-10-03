@@ -224,10 +224,27 @@ button {
     font-weight: 500;
     line-height: 16px;
 }
-.home_profile>svg {
+.home_profile_buttons {
     margin: auto 0;
-    margin-left: auto;
+    margin-left: auto !important;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+.home_profile_buttons>svg {
     cursor: pointer;
+}
+.home_profile_header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.home_profile_header_level {
+    color: var(--grey);
+    font-weight: 400 !important;
+}
+.home_profile_header_level>span {
+    color: var(--main);
 }
 
 .home_ads {
@@ -1603,6 +1620,10 @@ button {
     top: 16px;
     left: 16px;
     width: calc(100% - 32px);
+    z-index: 10;
+    transition: 0.2s;
+}
+.chat_header>div {
     border-radius: 20px;
     background-color: var(--die);
     padding: 16px 15px;
@@ -1610,22 +1631,28 @@ button {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    transition: 0.2s;
-    z-index: 10;
 }
-.chat_header>div {
+.chat_header>div>div {
     font-weight: 500;
     max-width: 80%;
     margin: auto 0;
 }
-.chat_header>svg {
+.chat_header>div>svg {
     width: 32px;
     height: 32px;
     margin: auto 0;
     cursor: pointer;
 }
-.chat_header>svg * {
+.chat_header>div>svg * {
     fill: var(--text);
+}
+.chat_header>button {
+    width: 100%;
+    margin-top: 8px;
+    background-color: var(--main);
+    border-radius: 12px;
+    padding: 14.5px 0;
+    color: white;
 }
 
 .chat_view {
@@ -1634,6 +1661,7 @@ button {
 }
 .chat_view .chat {
     height: 100%;
+    overflow: hidden;
 }
 
 .chat_main {
@@ -1642,6 +1670,7 @@ button {
     overflow-y: scroll;
     flex-grow: 1;
     display: flex;
+    flex-direction: column;
     width: 100%;
 }
 .chat_view .chat_main {
@@ -1704,11 +1733,11 @@ button {
     margin-right: auto;
 }
 .chat_main_messages_noTokens {
-    margin: 40px 0;
+    margin: 40px 16px;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    width: 100% !important;
+    width: calc(100% - 32px) !important;
     max-width: 100% !important;
     padding: 0 !important;
 }
@@ -1803,10 +1832,11 @@ button {
 }
 
 .chat_main_filler {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    /*position: absolute;*/
+    /*top: 50%;*/
+    /*left: 50%;*/
+    /*transform: translate(-50%, -50%);*/
+    margin: auto;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -3037,4 +3067,75 @@ button {
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
+}
+
+
+/* ПЕРВЫЙ ЗАГРУЗОЧНЫЙ ЭКРАН */
+.first_loading {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--background);
+    z-index:9999999;
+    padding: 16px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+.first_loading_logo {
+    margin: auto 0;
+    font-family: 'Ubuntu Sans', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    text-align: center;
+}
+.first_loading .ai_overlay_newSubject {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.first_loading .first_loading_level_title {
+    font-family: 'Ubuntu Sans', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+}
+.first_loading .ai_overlay_newSubject_select {
+    margin: 0;
+    width: 100%;
+}
+.first_loading .ai_overlay_newSubject input {
+    margin: 0;
+    width: 100%;
+}
+.first_loading>button,
+.overlay_first_loading>button {
+    margin-top: 40px;
+    background-color: var(--main);
+    border-radius: 12px;
+    padding: 14.5px 0;
+    margin-bottom: 40px;
+    color: white;
+}
+
+
+.overlay_first_loading {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+.overlay_first_loading_title {
+    font-family: 'Ubuntu Sans', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    margin: 0 16px;
+}
+.overlay_first_loading>button {
+    width: calc(100% - 32px);
+    margin: 0 16px !important;
+    margin-top: 40px !important;
+}
+.overlay_first_loading  .ai_overlay_newSubject_select {
+    margin-bottom: 0;
 }

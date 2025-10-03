@@ -395,6 +395,10 @@ export default {
         chat_id: {
             type: Number,
             required: true,
+        },
+        isView: {
+            type: Boolean,
+            default: false,
         }
     },
     computed: {
@@ -477,10 +481,14 @@ export default {
                         </div>
                     </template>
                 </div>
-                <div class="chat_main_messages_noTokens" v-if="user.tokens <= 0 && user.is_sub === 0">
-                    <div>Вы потратили бесплатные запросы. Для неограниченного количества запросов оформите подписку</div>
-                    <button @click="toLink('subscription')">Оформить</button>
-                </div>
+            </div>
+            <div class="chat_main_messages_noTokens" v-if="user.tokens <= 0 && user.is_sub === 0">
+                <div>Вы потратили бесплатные запросы. Для неограниченного количества запросов оформите подписку</div>
+                <button @click="toLink('subscription')">Оформить</button>
+            </div>
+            <div class="chat_main_messages_noTokens" v-if="isView === true && chat?.dialog?.length <= 1 && chat.level == null">
+                <div>Настройте чат под свой урочень обучения, так бот сможет прислывать материалы более точно</div>
+                <button @click="$emit('showEdit')">Настроить</button>
             </div>
         </div>
         <div v-if="pictures.length" class="dialog_attachment">
