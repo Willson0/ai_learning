@@ -9,6 +9,7 @@ use App\Http\utils;
 use App\Models\Chat;
 use App\Models\Subject;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -38,10 +39,10 @@ class ChatController extends Controller
                 . implode(", ", Subject::whereIn("id", json_decode($validated["subjects"]))->pluck("name")->toArray())
                 . ', при этом при любом другом вопросе веди тему в нужное русло (к школьным предметам), не отвечая на них.'
                 . ' Не используй ни в каком случае никакую (!) Markdown-разметку. Только текст и при надобности Можешь использовать LaTeX выражения для формул (!!!обязательно оборачивая в $ или $$)!'
-                . ' Не используй никакие ссылки. Старайся объяснить все максимально КРАТКО и ЁМКО (не больше 100 слов). '
+                . ' Не используй никакие ссылки'
                 . ' Учитывай, что пользователь находится в ' . $this->levels[$user->level]
                 . (($user->faculty != null && $user->faculty != '') ? ('(Факультет: ' . $user->faculty . ')') : '')
-                . ' и помогай ему с этим'
+                . ' и помогай ему с этим. Если ответ очень большой (больше 1000 символов!) (СТРОГО ЗАПРЕЩЕНО ИСПОЛЬЗОВАНИЕ LaTeX выражения!!), то можешь использовать формат HTML (не забудь указать charset utf8 и font-family: DejaVu Sans) (для конвертации в PDF) разметку (которая потом соберется в файл) для наиболее красивого ответа (!обязательно использование {type:PDF} в начале ответа!!)'
         ];
 //        $dialog[] = [
 //            "role" => "assistant",
@@ -80,10 +81,10 @@ class ChatController extends Controller
                     . implode(", ", Subject::whereIn("id", json_decode($validated["subjects"]))->pluck("name")->toArray())
                     . ', при этом при любом другом вопросе веди тему в нужное русло (к школьным предметам), не отвечая на них.'
                     . ' Не используй ни в каком случае никакую (!) Markdown-разметку. Только текст и при надобности Можешь использовать LaTeX выражения для формул (!!!обязательно оборачивая в $ или $$)!'
-                    . ' Не используй никакие ссылки. Старайся объяснить все максимально КРАТКО и ЁМКО (не больше 100 слов). '
+                    . ' Не используй никакие ссылки.'
                     . ' Учитывай, что пользователь находится в ' . $this->levels[$validated["level"]]
                     . (($validated["faculty"] != null && $validated["faculty"] != '') ? ('(Факультет: ' . $validated["faculty"] . ')') : '')
-                    . ' и помогай ему с этим';
+                    . ' и помогай ему с этим. Если ответ очень большой (больше 1000 символов!) (СТРОГО ЗАПРЕЩЕНО ИСПОЛЬЗОВАНИЕ LaTeX выражения!!), то можешь использовать формат HTML (не забудь указать charset utf8 и font-family: DejaVu Sans) (для конвертации в PDF) разметку (которая потом соберется в файл) для наиболее красивого ответа (!обязательно использование {type:PDF} в начале ответа!! СТРОГО ЗАПРЕЩЕНО ИСПОЛЬЗОВАНИЕ LaTeX в PDF!!)';
                 break;
             }
         }
@@ -215,7 +216,23 @@ class ChatController extends Controller
                         if (str_starts_with($line, 'data:')) {
                             $data = trim(substr($line, 5));
                             if ($data === '[DONE]') {
-                                $dialog[] = ["role" => "assistant", "content" => $assistant];
+                                $newDialog = ["role" => "assistant", "content" => $assistant];
+                                if (str_contains($assistant, '{type:PDF}')) {
+                                    Storage::disk('public')->makeDirectory('chat');
+
+                                    $time = time();
+                                    $url = "chat/response_$time" . ".pdf";
+
+                                    $html = str_replace('{type:PDF}', '', $assistant);
+                                    $pdf = Pdf::loadHTML($html);
+                                    $pdf->setOptions(['defaultFont' => 'DejaVu Sans']);
+
+                                    Storage::disk("public")->put($url, $pdf->output());
+                                    $newDialog["file"] = $url;
+                                    echo '{file_url: "' . $url . '"}';
+                                }
+
+                                $dialog[] = $newDialog;
                                 $chat->update(["dialog" => json_encode($dialog)]);
                                 return;
                             }
@@ -253,7 +270,24 @@ class ChatController extends Controller
                         }
                     }
                 }
-                $dialog[] = ["role" => "assistant", "content" => $assistant];
+
+                $newDialog = ["role" => "assistant", "content" => $assistant];
+                if (str_contains($assistant, '{type:PDF}')) {
+                    Storage::disk('public')->makeDirectory('chat');
+
+                    $time = time();
+                    $url = "chat/response_$time" . ".pdf";
+
+                    $html = str_replace('{type:PDF}', '', $assistant);
+                    $pdf = Pdf::loadHTML($html);
+                    $pdf->setOptions(['defaultFont' => 'DejaVu Sans']);
+
+                    Storage::disk("public")->put($url, $pdf->output());
+                    $newDialog["file"] = $url;
+                    echo '{file_url: "' . $url . '"}';
+                }
+
+                $dialog[] = $newDialog;
                 $chat->update(["dialog" => json_encode($dialog)]);
             } catch (\GuzzleHttp\Exception\RequestException $e) {
                 $responseBody = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : '';

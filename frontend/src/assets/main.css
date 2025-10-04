@@ -1565,6 +1565,20 @@ button {
 .chat_main_messages_audio>.waveform rect {
     transition: 0.5s;
 }
+.chat_main_messages_file {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    cursor: pointer;
+}
+.chat_main_messages_file>div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.chat_main_messages_file_title {
+    font-weight: 500;
+}
 .chat_input_recording_time>div {
     margin: auto 0;
 }

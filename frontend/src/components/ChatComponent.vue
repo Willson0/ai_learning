@@ -28,6 +28,7 @@ export default {
             activeAudio: -2,
 
             streamBuffer: '',
+            config: config,
         }
     },
     async mounted () {
@@ -184,6 +185,7 @@ export default {
                 // this.chat.dialog[this.chat.dialog.length - 1].content += chunk;
 
                 this.streamBuffer += chunk;
+                console.log(this.streamBuffer);
                 this.updateLastMessage();
             }
             this.updateLastMessage.flush && this.updateLastMessage.flush();
@@ -194,7 +196,7 @@ export default {
                     top: elem.scrollHeight,
                     behavior: 'smooth'
                 });
-            })
+            });
 
             let newUser = {...this.user};
 
@@ -203,6 +205,20 @@ export default {
             if (newUser.is_sub === 0) {
                 newUser.tokens--;
             }
+
+            const match = this.streamBuffer.match(/file_url:\s*"(.*?)"/);
+            let filePath = null;
+            if (match && match[1]) {
+                filePath = match[1];
+
+                const lastIndex = this.chat.dialog.length - 1;
+                if (lastIndex < 0) return;
+                this.chat.dialog[lastIndex].file = filePath;
+                newUser.chats[index] = this.chat;
+
+                this.streamBuffer = "";
+            }
+
             this.$store.commit("setUser", newUser);
             this.isLoading = false;
         },
@@ -378,11 +394,13 @@ export default {
             const lastIndex = this.chat.dialog.length - 1;
             if (lastIndex < 0) return;
             const lastMsg = this.chat.dialog[lastIndex];
+
+            if ((lastMsg.content + this.streamBuffer).includes('{type:PDF}')) {
+                this.chat.dialog[lastIndex].content = "Генерация файла...";
+                return;
+            }
+
             if (!this.isMathFormulaClosed(lastMsg.content + this.streamBuffer)) return;
-            // this.chat.dialog.splice(lastIndex, 1, {
-            //     ...lastMsg,
-            //     content: (lastMsg.content ?? '') + this.streamBuffer
-            // })
             this.chat.dialog[lastIndex].content = (lastMsg.content ?? '') + this.streamBuffer;
             this.streamBuffer = '';
         }, 120),
@@ -390,6 +408,9 @@ export default {
             const matches = text.match(/\$\$/g);
             return !matches || matches.length % 2 === 0;
         },
+        openLink (link) {
+            window.Telegram.WebApp.openLink(link);
+        }
     },
     props: {
         chat_id: {
@@ -470,6 +491,16 @@ export default {
                         <svg v-else @click="playAudio(this.audioBlob, $event.target.closest('div'), key)" width="10" height="16" style="width: 18px; height: 18px; min-width: unset;" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M1 0C1.55228 0 2 0.447715 2 1V17C2 17.5523 1.55228 18 1 18C0.447715 18 0 17.5523 0 17V1C0 0.447715 0.447715 0 1 0ZM9 0C9.55229 0 10 0.447715 10 1V17C10 17.5523 9.55229 18 9 18C8.44771 18 8 17.5523 8 17V1C8 0.447715 8.44771 0 9 0Z" fill="white"/>
                         </svg>
+                    </div>
+                    <div v-else-if="message.file != null" class="chat_main_messages_file" @click="openLink(config.storage + message.file)">
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="40" height="40" rx="20" fill="#00C896"/>
+                            <path d="M20.75 17.75V13.625L24.875 17.75M15.5 12.5C14.6675 12.5 14 13.1675 14 14V26C14 26.3978 14.158 26.7794 14.4393 27.0607C14.7206 27.342 15.1022 27.5 15.5 27.5H24.5C24.8978 27.5 25.2794 27.342 25.5607 27.0607C25.842 26.7794 26 26.3978 26 26V17L21.5 12.5H15.5Z" fill="white"/>
+                        </svg>
+                        <div>
+                            <div class="chat_main_messages_file_title">Файл для подготовки</div>
+                            <div>PDF</div>
+                        </div>
                     </div>
                     <template v-else>
                         <div v-if="message.role === 'user'">{{  typeof message.content === 'string' ? message.content : message.content?.find(item => item.type === 'text').text }}</div>
