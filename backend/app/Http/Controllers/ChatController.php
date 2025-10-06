@@ -159,7 +159,7 @@ class ChatController extends Controller
             $dialog[] = ["role" => "user", "content" => [
                     [
                         "type" => "text",
-                        "text" => $request["content"]
+                        "text" => str($request["content"])
                     ],
                     [
                         "type" => "image_url",
@@ -171,7 +171,7 @@ class ChatController extends Controller
                     ]
                 ]
             ];
-        } else $dialog[] = ["role" => "user", "content" => $request["content"], "audio" => $audio];
+        } else $dialog[] = ["role" => "user", "content" => str($request["content"]), "audio" => $audio];
         $chat->update(["dialog" => json_encode($dialog)]);
 
         $payload = [
