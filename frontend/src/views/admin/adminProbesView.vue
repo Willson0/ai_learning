@@ -115,8 +115,8 @@
                                                     <label>Правильный ответ (значение)</label>
                                                     <input type="text" v-model="ex.right_answer.value" />
                                                 </div>
-                                                <label>Предпросмотр текста</label>
-                                                <div class="md-preview" v-html="renderMarkdown(ex.text)"></div>
+<!--                                                <label>Предпросмотр текста</label>-->
+<!--                                                <div class="md-preview" v-html="renderMarkdown(ex.text)"></div>-->
                                             </div>
 
                                             <div class="preview-col">
@@ -126,8 +126,8 @@
                                                     class="md-editor-textarea"
                                                 >{{ ex.right_answer.description }}</textarea>
 
-                                                <label>Предпросмотр решения</label>
-                                                <div class="md-preview" v-html="renderMarkdown(ex.right_answer.description)"></div>
+<!--                                                <label>Предпросмотр решения</label>-->
+<!--                                                <div class="md-preview" v-html="renderMarkdown(ex.right_answer.description)"></div>-->
                                             </div>
                                         </div>
                                     </div> <!-- exercise-item -->

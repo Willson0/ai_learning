@@ -250,7 +250,7 @@ export default {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
                 try {
-                    this.mediaRecorder = new MediaRecorder(stream);
+                    this.mediaRecorder = new MediaRecorder(stream, {mimeType: 'audio/mp4'});
                 } catch (err) {
                     console.error("MediaRecorder error:", err);
                 }
@@ -337,6 +337,7 @@ export default {
             }).join('');
         },
         playAudio (blob, svg, key) {
+            console.log(blob.type);
             if (this.activeAudio === key) {
                 if (this.audio != null && !this.audio.paused) {
                     this.isAudioPaused = true;
@@ -488,7 +489,7 @@ export default {
                         <svg v-if="audio == null || activeAudio !== key || isAudioPaused" @click="playAudio(message.blob, $event.target.closest('div'), key)" width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12.6658 7.13397C13.3324 7.51888 13.3324 8.48112 12.6658 8.86602L2.16577 14.9282C1.4991 15.3131 0.665771 14.832 0.665771 14.0622L0.665771 1.93782C0.665771 1.16802 1.4991 0.686896 2.16577 1.0718L12.6658 7.13397Z" fill="white"/>
                         </svg>
-                        <svg v-else @click="playAudio(this.audioBlob, $event.target.closest('div'), key)" width="10" height="16" style="width: 18px; height: 18px; min-width: unset;" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg v-else @click="playAudio(message.blob, $event.target.closest('div'), key)" width="10" height="16" style="width: 18px; height: 18px; min-width: unset;" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M1 0C1.55228 0 2 0.447715 2 1V17C2 17.5523 1.55228 18 1 18C0.447715 18 0 17.5523 0 17V1C0 0.447715 0.447715 0 1 0ZM9 0C9.55229 0 10 0.447715 10 1V17C10 17.5523 9.55229 18 9 18C8.44771 18 8 17.5523 8 17V1C8 0.447715 8.44771 0 9 0Z" fill="white"/>
                         </svg>
                     </div>
