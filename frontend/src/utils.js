@@ -434,3 +434,24 @@ export let levels = {
         'student': 'Студент',
         'self': 'Для себя'
 }
+
+export function getMoscowDateTimeString() {
+    const now = new Date();
+    const options = {
+        timeZone: 'Europe/Moscow',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    };
+    const parts = new Intl.DateTimeFormat('en-GB', options)
+        .formatToParts(now)
+        .reduce((acc, part) => {
+            if (part.type !== 'literal') acc[part.type] = part.value;
+            return acc;
+        }, {});
+    return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`;
+}

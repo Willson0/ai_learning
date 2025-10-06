@@ -1,7 +1,7 @@
 <script>
 import axios from "axios";
 import config from "@/config.json";
-import {deepParse, notify, toLink} from "@/utils.js";
+import {deepParse, getMoscowDateTimeString, notify, toLink} from "@/utils.js";
 import KatexRender from "@/components/KatexComponent.vue";
 import debounce from 'lodash/debounce'
 
@@ -198,29 +198,32 @@ export default {
                 });
             });
 
-            let newUser = {...this.user};
+            await this.$nextTick(() => {
+                let newUser = {...this.user};
 
-            let index = newUser.chats.findIndex((ch) => ch.id === this.chat_id);
-            newUser.chats[index] = this.chat;
-            if (newUser.is_sub === 0) {
-                newUser.tokens--;
-            }
-
-            const match = this.streamBuffer.match(/file_url:\s*"(.*?)"/);
-            let filePath = null;
-            if (match && match[1]) {
-                filePath = match[1];
-
-                const lastIndex = this.chat.dialog.length - 1;
-                if (lastIndex < 0) return;
-                this.chat.dialog[lastIndex].file = filePath;
+                let index = newUser.chats.findIndex((ch) => ch.id === this.chat_id);
+                this.chat.updated_at = getMoscowDateTimeString();
                 newUser.chats[index] = this.chat;
+                if (newUser.is_sub === 0) {
+                    newUser.tokens--;
+                }
 
-                this.streamBuffer = "";
-            }
+                const match = this.streamBuffer.match(/file_url:\s*"(.*?)"/);
+                let filePath = null;
+                if (match && match[1]) {
+                    filePath = match[1];
 
-            this.$store.commit("setUser", newUser);
-            this.isLoading = false;
+                    const lastIndex = this.chat.dialog.length - 1;
+                    if (lastIndex < 0) return;
+                    this.chat.dialog[lastIndex].file = filePath;
+                    newUser.chats[index] = this.chat;
+
+                    this.streamBuffer = "";
+                }
+
+                this.$store.commit("setUser", newUser);
+                this.isLoading = false;
+            })
         },
         addFiles (ev) {
             this.pictures = [];
