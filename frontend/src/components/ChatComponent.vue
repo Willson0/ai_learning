@@ -471,7 +471,7 @@ export default {
 </script>
 
 <template>
-    <div class="chat">
+    <div class="chat no-blur">
         <div class="chat_main">
             <div class="chat_main_filler" v-if="!(user.is_sub === 0 && user.tokens === 0) && (chat == null || chat?.dialog?.filter(mes => mes.role !== 'system').length === 0)">
                 <svg width="48" height="41" viewBox="0 0 48 41" fill="none" xmlns="http://www.w3.org/2000/svg">

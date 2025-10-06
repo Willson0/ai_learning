@@ -157,25 +157,6 @@ export default {
 </script>
 
 <template>
-    <div class="background_first_loading background" style="display: none" @click.stop="closeOverlay('overlay_first_loading', 'background_first_loading')"></div>
-    <div class="overlay overlay_first_loading" style="display: none">
-        <div class="overlay_closeArea">
-            <svg width="67" height="2" viewBox="0 0 67 2" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1.5 1H65.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </div>
-        <div class="overlay_first_loading_title">Настройки</div>
-        <div class="ai_overlay_newSubject">
-            <div class="ai_overlay_newSubject_select" id="new_select">
-                <div class="ai_overlay_newSubject_select_title">Уровень обучения</div>
-                <div class="ai_overlay_newSubject_select_main">
-                    <div v-for="(level, key) in levels" @click="selectedLevel = key" :class="{'active': selectedLevel === key}">{{level}}</div>
-                </div>
-            </div>
-            <input v-if="selectedLevel === 'student'" type="text" v-model="faculty" placeholder="Факультет" id="new_name">
-        </div>
-        <button @click="sendSettings">Сохранить</button>
-    </div>
     <div class="background ai_background_newSubject" @click="closeOverlay('ai_overlay_newSubject', 'ai_background_newSubject')" style="display: none;"></div>
     <div class="overlay ai_overlay_newSubject" style="display: none;">
         <div class="overlay_closeArea">
@@ -195,6 +176,25 @@ export default {
             </div>
         </div>
         <button ref="new_button" class="accept" @click="editChat">Сохранить</button>
+    </div>
+    <div class="background_first_loading background" style="display: none" @click.stop="closeOverlay('overlay_first_loading', 'background_first_loading')"></div>
+    <div class="overlay overlay_first_loading" style="display: none">
+        <div class="overlay_closeArea">
+            <svg width="67" height="2" viewBox="0 0 67 2" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1.5 1H65.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <div class="overlay_first_loading_title">Настройки</div>
+        <div class="ai_overlay_newSubject">
+            <div class="ai_overlay_newSubject_select" id="new_select">
+                <div class="ai_overlay_newSubject_select_title">Уровень обучения</div>
+                <div class="ai_overlay_newSubject_select_main">
+                    <div v-for="(level, key) in levels" @click="selectedLevel = key" :class="{'active': selectedLevel === key}">{{level}}</div>
+                </div>
+            </div>
+            <input v-if="selectedLevel === 'student'" type="text" v-model="faculty" placeholder="Факультет" id="new_name">
+        </div>
+        <button @click="sendSettings">Сохранить</button>
     </div>
     <div v-show="activeMenu" ref="chat_menu" class="chat_menu">
         <button @click="activeMenu = false; chatName = chat.name; subjects = chat.subjects; openOverlay('ai_overlay_newSubject', 'ai_background_newSubject')">Редактировать чат</button>

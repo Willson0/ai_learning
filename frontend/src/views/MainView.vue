@@ -107,7 +107,8 @@ export default {
             if ((activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')
                 && !activeElement.contains(event.target)
                 && event.target !== activeElement) {
-                if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
+                if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA' &&
+                    !event.target.closest('.no-blur')) {
                     activeElement.blur();
                 }
             }
