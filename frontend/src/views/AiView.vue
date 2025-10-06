@@ -190,7 +190,7 @@ export default {
             </div>
             <search-component />
             <div class="ai_chats_list">
-                <div @click="toLink('chat', chat.id)" v-for="chat in chatList?.sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at))">
+                <div @click="toLink('chat', chat.id)" v-for="chat in chatList?.sort((a, b) => a.id - b.id)">
                     <div>
                         <div class="ai_chats_list_item_title">{{ chat.name }}</div>
                         <div class="ai_chats_list_item_subject" v-if="!isExercise">Предмет: {{ getSubjects(chat.subjects) }}</div>
