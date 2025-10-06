@@ -212,7 +212,7 @@ export default {
         </div>
         <button v-if="chat.level == null && chat?.dialog?.length > 1" @click="selectedLevel = chat.level; faculty = chat.faculty; openOverlay('overlay_first_loading', 'background_first_loading')">Настроить</button>
     </div>
-    <div class="chat_view">
+    <div class="chat_view" :class="{active: chat.level == null && chat?.dialog?.length > 1}">
         <chat-component :is-view="true" @showEdit="selectedLevel = chat.level; faculty = chat.faculty; openOverlay('overlay_first_loading', 'background_first_loading')" :chat_id="Number($route.query.id)" @chatload="chat = $event"/>
     </div>
 </template>

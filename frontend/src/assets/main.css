@@ -1690,6 +1690,9 @@ button {
 .chat_view .chat_main {
     padding-top: 102px;
 }
+.chat_view.active .chat_main {
+    padding-top: 152px !important;
+}
 
 .chat_main_messages {
     display: flex;
