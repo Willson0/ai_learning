@@ -338,7 +338,7 @@ export default {
         },
         playAudio (blob, svg, key) {
             console.log(blob.type);
-            if (this.activeAudio === key) {
+            if (this.activeAudio === key && key !== -1) {
                 if (this.audio != null && !this.audio.paused) {
                     this.isAudioPaused = true;
                     return this.audio.pause();
