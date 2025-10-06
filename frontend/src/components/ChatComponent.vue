@@ -281,7 +281,7 @@ export default {
         async inactiveMicrophone (needSend = false) {
             if (this.mediaRecorder) {
                 this.mediaRecorder.onstop = async () => {
-                    this.audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+                    this.audioBlob = new Blob(this.audioChunks, { type: 'audio/mp4' });
                     this.audioChunks = [];
 
                     if (this.audioBlob.size < 1000) {
