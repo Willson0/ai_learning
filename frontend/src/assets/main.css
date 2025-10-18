@@ -406,6 +406,24 @@ button {
     justify-content: space-between;
     color: var(--grey);
 }
+.subscription_your .home_supportChat_main_upper_header {
+    position: relative;
+}
+.home_supportChat_main_upper_header_price {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translateY(calc(-100% - 10px));
+    text-align: center;
+    width: 100px;
+    background-color: #3c3c3c;
+    border-radius: 10px;
+    padding: 10px;
+    transition: 0.15s;
+    color: white;
+    font-size: 12px;
+    display: none;
+}
 .home_supportChat_main_upper_name {
     margin-top: 8px;
     font-weight: 500;

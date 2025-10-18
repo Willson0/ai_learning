@@ -13,7 +13,21 @@ export default {
         }
     },
     mounted () {
-
+        document.addEventListener('click', (ev) => {
+            let el = this.$refs.price;
+            if (ev.target.closest('.home_supportChat_main_upper_header>svg') ||
+                ev.target.classList.contains('home_supportChat_main_upper_header_price')) {
+                el.style.display = "flex";
+                el.style.opacity = "0";
+                requestAnimationFrame(() => el.style.opacity = "1");
+            } else if (el.style.opacity === "1") {
+                el.style.opacity = "0";
+                el.addEventListener('transitionend', () => {
+                    el.style.display = "";
+                    el.style.opacity = "";
+                }, {once: true});
+            }
+        })
     },
     computed: {
         user () {
@@ -178,6 +192,7 @@ export default {
                             <path d="M8 12.4447V7.11133" stroke="#7B61FF" stroke-width="2"/>
                             <path d="M8 3.55566V5.33344" stroke="#7B61FF" stroke-width="2"/>
                         </svg>
+                        <span ref="price" class="home_supportChat_main_upper_header_price">Стоимость улучшенного тарифа: 300.00₽</span>
                     </div>
                     <div class="home_supportChat_main_upper_name">
                         {{ user.is_sub ? 'Активная подписка' : 'Бесплатный' }}
