@@ -29,6 +29,9 @@ class PaymentController extends Controller
                 "confirmation" => [
                     "type" => "embedded"
                 ],
+                "payment_method_data" => [
+                    "type" => "sbp",
+                ],
                 "capture" => true,
                 "description" => "Заказ №72",
                 "save_payment_method" => true
