@@ -192,7 +192,7 @@ export default {
                             <path d="M8 12.4447V7.11133" stroke="#7B61FF" stroke-width="2"/>
                             <path d="M8 3.55566V5.33344" stroke="#7B61FF" stroke-width="2"/>
                         </svg>
-                        <span ref="price" class="home_supportChat_main_upper_header_price">Стоимость улучшенного тарифа: 300.00₽</span>
+                        <span ref="price" class="home_supportChat_main_upper_header_price">Стоимость улучшенного тарифа: 550.00₽</span>
                     </div>
                     <div class="home_supportChat_main_upper_name">
                         {{ user.is_sub ? 'Активная подписка' : 'Бесплатный' }}
