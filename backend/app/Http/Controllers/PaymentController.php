@@ -27,8 +27,8 @@ class PaymentController extends Controller
                     "currency" => "RUB"
                 ],
                 "confirmation" => [
-                    "type" => "redirect",
-                    "return_url" => "https://" . env('DOMAIN') . "return_url"
+                    "type" => "embedded",
+//                    "return_url" => "https://" . (env('DOMAIN')) . "return_url"
                 ],
                 "capture" => true,
                 "description" => "Заказ №72",
