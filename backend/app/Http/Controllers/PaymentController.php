@@ -27,8 +27,8 @@ class PaymentController extends Controller
                     "currency" => "RUB"
                 ],
                 "confirmation" => [
-                    "type" => "redirect",
-                    "return_url" => "https://www.example.com/return_url"
+                    "type" => "embedded",
+//                    "return_url" => "https://www.example.com/return_url"
                 ],
                 "payment_method_data" => [
                     "type" => "sbp",
