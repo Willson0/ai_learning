@@ -207,6 +207,35 @@ import axios from "axios";
                     alert (error.response.data.message || 'Ошибка при отправке данных. Попробуйте позже.');
                 });
             },
+            async activeTrial () {
+                if (this.user.payment_method_id == null) return this.openAddCard();
+                if (!confirm('Вы действительно хотите активировать пробную подписку?')) return;
+
+                await axios.post(config.backend + "subscription/trial", {
+                    initData: window.Telegram.WebApp.initData,
+                }).then((response) => {
+                    notify("Пробная подписка активирована", 0);
+
+                    let newUser = {...this.user};
+                    newUser.used_trial = 1;
+                    newUser.is_sub = 1;
+                    newUser.sub_date = new Date();
+                    newUser.sub_date.setDate(newUser.sub_date.getDate() + 7);
+                    this.$store.commit('setUser', newUser);
+                }).catch((error) => {
+                    if (error.response.status === 420) {
+                        let link = error.response.data.channel;
+                        if (link.startsWith('@')) link = link.split('@')[1];
+                        link = "https://t.me/" + link;
+
+                        if (confirm(`Для активации требуется подписка на телеграм канал ${error.response.data.channel}. Перейти?`))
+                            window.Telegram.WebApp.openTelegramLink(link);
+                        return;
+                    }
+
+                    notify(error.response.data.message || 'Ошибка при активации подписки', 1);
+                });
+            },
         },
         computed: {
             avatar () {
@@ -299,6 +328,13 @@ import axios from "axios";
             </div>
             <div class="profile_news_bar"><div ref="news_bar" :style="'transition: ' + timeToNext + 's'"></div></div>
         </div>
+<!--        -->
+        <div class="subscription_trial" v-if="user.used_trial !== 1 && user.is_sub === 0">
+            <div class="subscription_trial_title">Пробная подписка на 7 дней</div>
+            <div class="subscription_trial_description">Попробуйте расширенные функции с пробной подпиской</div>
+            <button @click="activeTrial">Подключить</button>
+        </div>
+<!--        -->
         <div @click="toLink('subscription')" class="home_subscription">
             <img id="home_subscription_background" src="/subscription_background.png" alt="">
             <img id="home_subscription_crown" src="/crown.png" alt="">

@@ -1067,6 +1067,8 @@ button {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    margin: 16px;
+    margin-bottom: 0;
 }
 .subscription_trial_title {
     font-family: 'Ubuntu Sans', sans-serif;

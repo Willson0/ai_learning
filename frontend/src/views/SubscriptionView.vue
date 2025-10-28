@@ -62,25 +62,30 @@ export default {
             await axios.post(config.backend + "payment/linkcard", {
                 initData: window.Telegram.WebApp.initData,
             }).then((response) => {
-                const root = document.documentElement;
-                const checkout = new window.YooMoneyCheckoutWidget({
-                    confirmation_token: response.data,
-                    return_url: "https://" + window.location.hostname,
-                    error_callback: function(error) {
-                        console.log(error)
-                    },
-                    customization: {
-                        colors: {
-                            background: getComputedStyle(root).getPropertyValue('--addiction').trim(),
-                            control_primary: getComputedStyle(root).getPropertyValue('--accent').trim(),
-                            control_primary_content: "#FFFFFF",
-                            text: getComputedStyle(root).getPropertyValue('--text').trim(),
-                            border: getComputedStyle(root).getPropertyValue('--divider').trim(),
-                            control_secondary: getComputedStyle(root).getPropertyValue('--grey').trim(),
-                        }
-                    },
-                });
-                checkout.render('subscription_overlay');
+                if (response.data.url) {
+                    window.Telegram.WebApp.openLink(response.data.url);
+                } else {
+                    alert ("Счёт был выставлен в личных сообщениях с ботом, проверьте их");
+                }
+                // const root = document.documentElement;
+                // const checkout = new window.YooMoneyCheckoutWidget({
+                //     confirmation_token: response.data,
+                //     return_url: "https://" + window.location.hostname,
+                //     error_callback: function(error) {
+                //         console.log(error)
+                //     },
+                //     customization: {
+                //         colors: {
+                //             background: getComputedStyle(root).getPropertyValue('--addiction').trim(),
+                //             control_primary: getComputedStyle(root).getPropertyValue('--accent').trim(),
+                //             control_primary_content: "#FFFFFF",
+                //             text: getComputedStyle(root).getPropertyValue('--text').trim(),
+                //             border: getComputedStyle(root).getPropertyValue('--divider').trim(),
+                //             control_secondary: getComputedStyle(root).getPropertyValue('--grey').trim(),
+                //         }
+                //     },
+                // });
+                // checkout.render('subscription_overlay');
             });
         },
         async deleteCard () {
@@ -94,35 +99,6 @@ export default {
             closeAllOverlays();
             await axios.post(config.backend + "payment/unlinkcard", {
                 initData: window.Telegram.WebApp.initData,
-            });
-        },
-        async activeTrial () {
-            if (this.user.payment_method_id == null) return this.openAddCard();
-            if (!confirm('Вы действительно хотите активировать пробную подписку?')) return;
-
-            await axios.post(config.backend + "subscription/trial", {
-                initData: window.Telegram.WebApp.initData,
-            }).then((response) => {
-                notify("Пробная подписка активирована", 0);
-
-                let newUser = {...this.user};
-                newUser.used_trial = 1;
-                newUser.is_sub = 1;
-                newUser.sub_date = new Date();
-                newUser.sub_date.setDate(newUser.sub_date.getDate() + 7);
-                this.$store.commit('setUser', newUser);
-            }).catch((error) => {
-                if (error.response.status === 420) {
-                    let link = error.response.data.channel;
-                    if (link.startsWith('@')) link = link.split('@')[1];
-                    link = "https://t.me/" + link;
-
-                    if (confirm(`Для активации требуется подписка на телеграм канал ${error.response.data.channel}. Перейти?`))
-                        window.Telegram.WebApp.openTelegramLink(link);
-                    return;
-                }
-
-                notify(error.response.data.message || 'Ошибка при активации подписки', 1);
             });
         },
         async buySubscription () {
@@ -175,11 +151,11 @@ export default {
         <div id="subscription_overlay"></div>
     </div>
     <div class="subscription">
-        <div class="subscription_trial" v-if="user.used_trial !== 1 && user.is_sub === 0">
-            <div class="subscription_trial_title">Пробная подписка на 7 дней</div>
-            <div class="subscription_trial_description">Попробуйте расширенные функции с пробной подпиской</div>
-            <button @click="activeTrial">Подключить</button>
-        </div>
+<!--        <div class="subscription_trial" v-if="user.used_trial !== 1 && user.is_sub === 0">-->
+<!--            <div class="subscription_trial_title">Пробная подписка на 7 дней</div>-->
+<!--            <div class="subscription_trial_description">Попробуйте расширенные функции с пробной подпиской</div>-->
+<!--            <button @click="activeTrial">Подключить</button>-->
+<!--        </div>-->
         <div class="subscription_your">
             <div class="subscription_your_title">Ваша подписка</div>
             <div class="home_supportChat_main">

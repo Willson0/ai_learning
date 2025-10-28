@@ -26,13 +26,13 @@ class PaymentController extends Controller
                     "value" => "1.00",
                     "currency" => "RUB"
                 ],
-                "confirmation" => [
-                    "type" => "embedded",
-//                    "return_url" => "https://" . (env('DOMAIN')) . "return_url"
+                'confirmation' => [
+                    'type' => 'redirect',
+                    'return_url' => 'https://yookassa.ru/',
                 ],
                 "capture" => true,
+                "save_payment_method" => true,
                 "description" => "Заказ №72",
-                "save_payment_method" => true
             ],
             $user->id . "_" . time() . "_linkCard"
         );
@@ -46,7 +46,8 @@ class PaymentController extends Controller
             "amount" => 0,
         ]);
 
-        return response()->json($response["confirmation"]["confirmation_token"]);
+//        return response()->json($response["confirmation"]["confirmation_token"]);
+        return response()->json(["url" => $response->confirmation->getConfirmationUrl()]);
     }
 
     public function unLinkCard (Request $request) {
