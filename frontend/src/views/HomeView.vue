@@ -236,6 +236,22 @@ import axios from "axios";
                     notify(error.response.data.message || 'Ошибка при активации подписки', 1);
                 });
             },
+            async openAddCard () {
+                openOverlay('subscription_overlay', 'subscription_background')
+
+                if (this.paymentLoaded) return;
+                this.paymentLoaded = true;
+
+                await axios.post(config.backend + "payment/linkcard", {
+                    initData: window.Telegram.WebApp.initData,
+                }).then((response) => {
+                    if (response.data.url) {
+                        window.Telegram.WebApp.openLink(response.data.url);
+                    } else {
+                        alert ("Счёт был выставлен в личных сообщениях с ботом, проверьте их");
+                    }
+                });
+            },
         },
         computed: {
             avatar () {
