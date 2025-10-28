@@ -54,7 +54,7 @@ export default {
             });
         },
         async openAddCard () {
-            openOverlay('subscription_overlay', 'subscription_background')
+            // openOverlay('subscription_overlay', 'subscription_background')
 
             if (this.paymentLoaded) return;
             this.paymentLoaded = true;

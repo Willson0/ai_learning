@@ -27,6 +27,8 @@ import axios from "axios";
                 selectedLevel: "",
                 faculty: "",
                 levels: levels,
+
+                paymentLoaded: false,
             }
         },
         async mounted () {
@@ -237,7 +239,7 @@ import axios from "axios";
                 });
             },
             async openAddCard () {
-                openOverlay('subscription_overlay', 'subscription_background')
+                // openOverlay('subscription_overlay', 'subscription_background')
 
                 if (this.paymentLoaded) return;
                 this.paymentLoaded = true;
