@@ -119,14 +119,14 @@ export default {
 
 <template>
     <div class="background now_card_background" @click="closeOverlay('now_card_overlay', 'now_card_background')" style="display: none"></div>
-    <div class="overlay subscription_overlay now_card_overlay" style="display: none" v-if="user.card?.first6">
+    <div class="overlay subscription_overlay now_card_overlay" style="display: none" v-if="user.payment_method_id">
         <div class="overlay_closeArea">
             <svg width="66" height="2" viewBox="0 0 66 2" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M1 1H65" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </div>
         <div class="subscription_overlay_title">Привязанная карта</div>
-        <div class="subscription_overlay_inputs">
+        <div class="subscription_overlay_inputs" v-if="user.card?.first6">
             <div>
                 <input disabled :value="splitBy4(user.card.first6.toString()) + '** **** ' + user.card.last4" placeholder="Номер карты">
             </div>
@@ -138,6 +138,9 @@ export default {
                 </div>
                 <input disabled value="***" placeholder="CCV">
             </div>
+        </div>
+        <div class="subscription_overlay_inputs" v-else>
+            СБП
         </div>
         <button @click="deleteCard" style="background-color: var(--error)">Отвязать</button>
     </div>
@@ -211,7 +214,8 @@ export default {
                     <path d="M12.5 15.25C12.0858 15.25 11.75 15.5858 11.75 16C11.75 16.4142 12.0858 16.75 12.5 16.75H14C14.4142 16.75 14.75 16.4142 14.75 16C14.75 15.5858 14.4142 15.25 14 15.25H12.5Z" fill="var(--text)"/>
                     <path d="M6 15.25C5.58579 15.25 5.25 15.5858 5.25 16C5.25 16.4142 5.58579 16.75 6 16.75H10C10.4142 16.75 10.75 16.4142 10.75 16C10.75 15.5858 10.4142 15.25 10 15.25H6Z" fill="var(--text)"/>
                 </svg>
-                <div>{{ splitBy4(user?.card?.first6.toString()) }}** **** {{ user.card?.last4 }}</div>
+                <div v-if="user.card?.first6">{{ splitBy4(user?.card?.first6.toString()) }}** **** {{ user.card?.last4 }}</div>
+                <div v-else>СБП</div>
             </div>
         </div>
     </div>
