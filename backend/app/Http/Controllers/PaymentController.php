@@ -101,6 +101,18 @@ class PaymentController extends Controller
             }
 
             $payment->delete();
+        } else if ($request->event === "payment.waiting_for_capture" || $request->status === "waiting_for_capture") {
+            $object = $request->input('object');
+            $paymentId = $object['id'];
+
+            $client = new Client();
+            $client->setAuth(env('SHOP_ID'), env('YOOKASSA_API_KEY'));
+
+            try {
+                $client->capturePayment([], $paymentId, uniqid('capture_', true));
+            } catch (\Throwable $e) {
+                Log::error('YooKassa capturePayment error: ' . $e->getMessage());
+            }
         }
 
         $payment->save();
