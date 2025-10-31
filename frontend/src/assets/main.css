@@ -1141,6 +1141,20 @@ button {
     font-weight: 500;
     margin: auto 0;
 }
+.subscription_improved {
+    flex-direction: column !important;
+    gap: 6px;
+}
+.subscription_improved_price {
+    color: var(--grey);
+    font-size: 12px;
+}
+.subscription_improved_description {
+    padding-left: 20px;
+    gap: 4px;
+    display: flex;
+    flex-direction: column;
+}
 .subscription_payments_addCard {
     margin-top: 16px;
     padding: 8px;

@@ -102,7 +102,10 @@ export default {
             });
         },
         async buySubscription () {
-            if (!this.user.payment_method_id) return this.openAddCard();
+            if (!this.user.payment_method_id) {
+              alert ('Для покупки подписки, нужно привязать карту.');
+              return this.openAddCard();
+            }
             if (!confirm("Вы уверены, что хотите приобрести подписку?")) return;
 
             await axios.post(config.backend + "subscription/buy", {
@@ -217,6 +220,16 @@ export default {
                 <div v-if="user.card?.first6">{{ splitBy4(user?.card?.first6.toString()) }}** **** {{ user.card?.last4 }}</div>
                 <div v-else>СБП</div>
             </div>
+        </div>
+        <div class="subscription_payments_autopayment subscription_improved">
+            <div class="subscription_payments_autopayment_text">Улучшенный тариф</div>
+            <div class="subscription_improved_price">Стоимость: 550.00₽</div>
+            <ul class="subscription_improved_description">
+                <li>Бесконечные запросы к нейросети</li>
+                <li>Голосовые сообщения нейросети</li>
+                <li>Безлимитные подсказки</li>
+                <li>Доступ к уникальным материалам бота</li>
+            </ul>
         </div>
     </div>
 </template>

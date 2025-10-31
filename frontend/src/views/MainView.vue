@@ -202,6 +202,7 @@ export default {
                 user = deepParse(JSON.stringify(user));
                 this.$store.dispatch("updateUser", user);
             }).catch((error) => {
+              console.log(error);
                 if (error.response.status === 423) {
                     notify ("Доступ запрещен. Вы не находитесь в белом списке", 1);
                     return this.notWhiteList = true;
