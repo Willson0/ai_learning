@@ -222,8 +222,15 @@ export default {
             </div>
         </div>
         <div class="subscription_payments_autopayment subscription_improved">
-            <div class="subscription_payments_autopayment_text">Улучшенный тариф</div>
-            <div class="subscription_improved_price">Стоимость: 550.00₽</div>
+            <div>
+                <div>
+                    <div class="subscription_payments_autopayment_text">Улучшенный тариф</div>
+                    <div class="subscription_improved_price">Стоимость: 550.00₽</div>
+                </div>
+                <div v-if="user.is_sub === 0" class="home_supportChat_main_downer">
+                  <button @click="buySubscription">Подключить</button>
+                </div>
+            </div>
             <ul class="subscription_improved_description">
                 <li>Бесконечные запросы к нейросети</li>
                 <li>Голосовые сообщения нейросети</li>

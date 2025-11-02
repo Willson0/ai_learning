@@ -1145,6 +1145,27 @@ button {
     flex-direction: column !important;
     gap: 6px;
 }
+.subscription_improved>div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px;
+}
+.subscription_improved .home_supportChat_main_downer {
+    width: min-content;
+    max-width: 50%;
+}
+.subscription_improved>div>div {
+    margin: auto 0;
+}
+.subscription_improved>div>div>button {
+    height: fit-content;
+    padding: 10px 0;
+    margin: auto 0;
+    border: none;
+    outline: none;
+}
 .subscription_improved_price {
     color: var(--grey);
     font-size: 12px;
