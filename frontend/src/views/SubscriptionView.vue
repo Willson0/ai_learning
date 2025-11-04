@@ -102,16 +102,18 @@ export default {
             });
         },
         async buySubscription () {
-            if (!this.user.payment_method_id) {
-              alert ('Для покупки подписки, нужно привязать карту.');
-              return this.openAddCard();
-            }
+            // if (!this.user.payment_method_id) {
+            //   alert ('Для покупки подписки, нужно привязать карту.');
+            //   return this.openAddCard();
+            // }
             if (!confirm("Вы уверены, что хотите приобрести подписку?")) return;
 
             await axios.post(config.backend + "subscription/buy", {
                 initData: window.Telegram.WebApp.initData,
             }).then((response) => {
-                notify("Запрос на активацию подписки отправлен", 0);
+              if (response.data.url) {
+                window.Telegram.WebApp.openLink(response.data.url);
+              } else notify("Запрос на активацию подписки отправлен", 0);
             }).catch((error) => {
                 notify(error.response.data.message || 'Ошибка при активации подписки', 1);
             });

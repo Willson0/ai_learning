@@ -49,7 +49,6 @@ class SubscriptionController extends Controller
     public function buy (Request $request) {
         $user = User::where("telegram_id", $request["initData"]["user"]["id"])->firstOrFail();
         if ($user->is_sub == 1) abort(403,"У вас уже есть подписка");
-        if ($user->payment_method_id == null) abort(403,"У вас не выбрана оплата");
 
         $formattedPrice = env('SUB_PRICE', '300.00');
         if ($user->spend_bonus && $user->bonus > 0) {
@@ -68,7 +67,24 @@ class SubscriptionController extends Controller
 
         $client = new Client();
         $client->setAuth(env("SHOP_ID"), env("YOOKASSA_API_KEY"));
-        $response = $client->createPayment(
+        if ($user->payment_method_id == null)
+            $response = $client->createPayment(
+                [
+                    "amount" => [
+                        "value" => $formattedPrice,
+                        "currency" => "RUB"
+                    ],
+                    'confirmation' => [
+                        'type' => 'redirect',
+                        'return_url' => 'https://yookassa.ru/',
+                    ],
+                    "capture" => true,
+                    "save_payment_method" => true,
+                    "description" => "Подписка на 30 дней",
+                ],
+                $user->id . "_sub_" . time()
+            );
+        else $response = $client->createPayment(
             [
                 'amount' => [
                     'value' =>  $formattedPrice,
@@ -91,6 +107,8 @@ class SubscriptionController extends Controller
             "amount" => 30,
         ]);
 
-        return response()->json(["ok" => true]);
+        if ($user->payment_method_id == null)
+            return response()->json(["url" => $response->confirmation->getConfirmationUrl()]);
+        else return response()->json(["ok" => true]);
     }
 }
