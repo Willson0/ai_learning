@@ -210,10 +210,10 @@ import axios from "axios";
                 });
             },
             async activeTrial () {
-                if (this.user.payment_method_id == null) {
-                    alert ('Для активации пробной подписки, нужно привязать карту.');
-                    return this.openAddCard();
-                }
+                // if (this.user.payment_method_id == null) {
+                //     alert ('Для активации пробной подписки, нужно привязать карту.');
+                //     return this.openAddCard();
+                // }
                 if (!confirm('Вы действительно хотите активировать пробную подписку?')) return;
 
                 await axios.post(config.backend + "subscription/trial", {

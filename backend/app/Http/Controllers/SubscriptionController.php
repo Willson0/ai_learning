@@ -15,7 +15,7 @@ class SubscriptionController extends Controller
         $user = User::where("telegram_id", $request["initData"]["user"]["id"])->firstOrFail();
         if ($user->user_trial == 1) abort(403,"Пробная подписка уже использовалась");
         if ($user->is_sub == 1) abort(403,"У вас уже есть подписка");
-        if ($user->payment_method_id == null) abort(403,"У вас не выбрана оплата");
+//        if ($user->payment_method_id == null) abort(403,"У вас не выбрана оплата");
 
         $botToken = env("TELEGRAM_BOT_TOKEN");
         $apiUrl = "https://api.telegram.org/bot{$botToken}/getChatMember";
