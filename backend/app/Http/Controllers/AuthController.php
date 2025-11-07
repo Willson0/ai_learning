@@ -45,6 +45,7 @@ class AuthController extends Controller
                 "pinned_achievements" => json_encode([]),
                 "data" => "{}",
             ]);
+            $user = User::find($user->id);
         } else {
             $user->update([
                 "fullname" => $request["initData"]["user"]["first_name"]
