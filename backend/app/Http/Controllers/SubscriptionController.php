@@ -81,6 +81,24 @@ class SubscriptionController extends Controller
                     "capture" => true,
                     "save_payment_method" => true,
                     "description" => "Подписка на 30 дней",
+                    'receipt' => [
+                        'customer' => [
+                            'email' => "666.well@mail.ru",
+                        ],
+                        'items' => [
+                            [
+                                'description' => "Улучшенный тариф на 30 дней",
+                                'quantity' => '1.00',
+                                'amount' => [
+                                    'value' => $formattedPrice,
+                                    'currency' => 'RUB',
+                                ],
+                                'vat_code' => 2,
+                                'payment_mode' => 'full_payment',
+                                'payment_subject' => 'commodity',
+                            ],
+                        ],
+                    ],
                 ],
                 $user->id . "_sub_" . time()
             );
@@ -93,6 +111,24 @@ class SubscriptionController extends Controller
                 'capture' => true,
                 'payment_method_id' => $user->payment_method_id,
                 'description' => "Подписка на 30 дней",
+                'receipt' => [
+                    'customer' => [
+                        'email' => "666.well@mail.ru",
+                    ],
+                    'items' => [
+                        [
+                            'description' => "Улучшенный тариф на 30 дней",
+                            'quantity' => '1.00',
+                            'amount' => [
+                                'value' => $formattedPrice,
+                                'currency' => 'RUB',
+                            ],
+                            'vat_code' => 2,
+                            'payment_mode' => 'full_payment',
+                            'payment_subject' => 'commodity',
+                        ],
+                    ],
+                ],
             ],
             $user->id . "_sub_" . time()
         );

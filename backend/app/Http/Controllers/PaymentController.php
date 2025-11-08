@@ -33,6 +33,24 @@ class PaymentController extends Controller
                 "capture" => true,
                 "save_payment_method" => true,
                 "description" => "Заказ №72",
+                'receipt' => [
+                    'customer' => [
+                        'email' => "666.well@mail.ru",
+                    ],
+                    'items' => [
+                        [
+                            'description' => "Привязка способа оплаты",
+                            'quantity' => '1.00',
+                            'amount' => [
+                                'value' => "1.00",
+                                'currency' => 'RUB',
+                            ],
+                            'vat_code' => 2,
+                            'payment_mode' => 'full_payment',
+                            'payment_subject' => 'commodity',
+                        ],
+                    ],
+                ],
             ],
             $user->id . "_" . time() . "_linkCard"
         );
