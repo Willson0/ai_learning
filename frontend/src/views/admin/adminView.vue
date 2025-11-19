@@ -37,9 +37,21 @@ export default {
             let months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
             let values = this.data[this.perf];
 
-            let minvalue = Math.floor(Math.min(...values) / 10) * 10;
-            let maxvalue = Math.ceil(Math.max(...values) / 10) * 10;
-            let countvalues = maxvalue/10 - minvalue/10 + 1;
+            let maxRaw = Math.max(...values);
+            let minRaw = Math.min(...values);
+
+            let step;
+            if (maxRaw < 100) step = 10;
+            else if (maxRaw < 1000) step = 100;
+            else if (maxRaw < 10000) step = 1000;
+            else {
+                let length = maxRaw.toString().length;
+                step = Math.pow(10, length - 2);
+            }
+
+            let minvalue = Math.floor(minRaw / step) * step;
+            let maxvalue = Math.ceil(maxRaw / step) * step;
+            let countvalues = Math.floor((maxvalue - minvalue) / step) + 1;
 
             ctx.strokeStyle = "#4c4c71";
             ctx.lineWidth = 1;
@@ -52,7 +64,7 @@ export default {
 
             for (let i = 0; i < countvalues; i ++) {
                 let y = margin + 14 + 5 + ((canv.height-(margin+14+5)*2 - 20)/(countvalues-1)*(i));
-                ctx.fillText(maxvalue - i*10, valuesColumn, y);
+                ctx.fillText(maxvalue - i * step, valuesColumn, y);
             }
 
             ctx.textAlign = "center";
@@ -72,7 +84,9 @@ export default {
                 ctx.fillText(month, x, canv.height-20);
 
                 ctx.fillStyle = "#389466";
-                let pointy = margin + 14 + ((canv.height-(margin+14+5)*2-20)/(countvalues-1))*((maxvalue-values[i])/10);
+                let pointy = margin + 14 +
+                    ((canv.height-(margin+14+5)*2-20)/(countvalues-1)) * ((maxvalue-values[i])/step);
+
                 ctx.arc(x, pointy, 4, 0, 2*Math.PI)
                 ctx.fill();
 
