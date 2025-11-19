@@ -54,8 +54,9 @@ class WebhookController extends Controller
                         $bonuses = intval(env("BONUS_FROM_USER"));
                         $referral->bonus += $bonuses;
 
-                        if ($referral->is_sub) $referral->sub_date = Carbon::parse($referral->sub_date)->addMonth();
+                        if ($referral->is_sub != null) $referral->sub_date = Carbon::parse($referral->sub_date)->addMonth();
                         else $referral->sub_date = Carbon::now()->addMonth();
+                        $referral->is_sub = 1;
 
                         $referral->save();
 
