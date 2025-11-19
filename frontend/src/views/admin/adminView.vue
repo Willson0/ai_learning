@@ -2,6 +2,7 @@
 import config from "@/config.json"
 import adminnav from "@/components/adminnav.vue";
 import {formatDate, notify, removeLoading, togglePopup} from "@/assets/admin.js";
+import axios from "axios";
 export default {
     name: "adminView",
     data () {
@@ -12,6 +13,8 @@ export default {
             tasks: [],
             task: -1,
             updtask: {},
+
+            trial: 0,
         };
     },
     components: {
@@ -148,6 +151,7 @@ export default {
                 return response.json();
             }).then((response) => {
                 this.data = response;
+                this.trial = this.data.trial;
                 removeLoading();
 
                 this.canvinit();
@@ -232,6 +236,16 @@ export default {
         },
         toOnlyText (html) {
             return html.replace(/\s*style\s*=\s*["'][^"']*["']/gi, '');
+        },
+        async saveTrial () {
+            if (this.trial < 0) return alert ("Количество дней не может быть меньше нуля!");
+
+            axios.defaults.withCredentials = true;
+            await axios.post(config.backend + "admin/trial", {
+                days: this.trial,
+            }).then((response) => {
+                alert("Успешно изменено!");
+            })
         }
     },
     async mounted() {
@@ -368,6 +382,13 @@ export default {
                         Всего
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="admin_main_settings">
+            <div>
+                <label for="trial_input">Количество дней пробной подписки<br><span>0 - для отключения пробной подписки</span></label>
+                <input v-model="trial" type="number" id="trial_input">
+                <button @click="saveTrial">Сохранить</button>
             </div>
         </div>
     </adminnav>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SupportSendRequest;
+use App\Http\utils;
 use App\Models\Support;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -32,6 +33,8 @@ class SupportController extends Controller
                 "user_id" => $user["id"],
                 "is_closed" => 0
             ]);
+            $support = Support::find($support->id);
+            utils::logging($user->id, "Пользователь &{user} создал обращение в поддержку №$support->id", ["user" => $user]);
         }
 
         $support->dialog = json_decode($support->dialog, true);

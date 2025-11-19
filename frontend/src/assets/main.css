@@ -157,8 +157,49 @@ button {
     transition: 0.2s;
 }
 
+.online {
+    background-color: var(--die);
+    width: 100%;
+    padding-bottom: 8px;
+    z-index: 99999999999999999999999999999;
+    user-select: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+.online>div {
+    margin: 0 auto;
+    width: fit-content;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+.online_circle {
+    width: 6px;
+    height: 6px;
+    background-color: #39E34D;
+    margin: auto 0;
+    border-radius: 100%;
+    animation: blink 4s infinite ease-in-out;
+}
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.online>div>p {
+    font-size: 14px;
+    line-height: 14px;
+    font-weight: 300;
+}
+
 /* ГЛАВНАЯ НАВИГАЦИЯ */
 .slot {
+    padding-top: 22px;
     margin-bottom: 100px;
 }
 .nav {
@@ -3010,7 +3051,7 @@ button {
     position:fixed;
     left:50%;
     transform: translateX(-50%);
-    z-index:999999999;
+    z-index:99999999999999999999999999999999;
 }
 .popup_notification_container>div {
     transition: none;

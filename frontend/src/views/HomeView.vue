@@ -257,6 +257,16 @@ import axios from "axios";
                     }
                 });
             },
+            getDays (days) {
+                days = Number(days);
+                let lastTwo = days % 100;
+                let last = days % 10;
+
+                if (lastTwo >= 11 && lastTwo <= 14) return 'дней';
+                else if (last === 1) return 'день';
+                else if (last >= 2 && last <= 4) return 'дня';
+                else return 'дней';
+            }
         },
         computed: {
             avatar () {
@@ -350,8 +360,8 @@ import axios from "axios";
             <div class="profile_news_bar"><div ref="news_bar" :style="'transition: ' + timeToNext + 's'"></div></div>
         </div>
 <!--        -->
-        <div class="subscription_trial" v-if="user.used_trial !== 1 && user.is_sub === 0">
-            <div class="subscription_trial_title">Пробная подписка на 7 дней</div>
+        <div class="subscription_trial" v-if="user.used_trial !== 1 && user.is_sub === 0 && user.trial !== 0">
+            <div class="subscription_trial_title">Пробная подписка на {{ user.trial }} {{ getDays(user.trial) }}</div>
             <div class="subscription_trial_description">Попробуйте расширенные функции с пробной подпиской</div>
             <button @click="activeTrial">Подключить</button>
         </div>

@@ -29,6 +29,7 @@ Route::group(["prefix" => "api"], function () {
         Route::post("profile", [AuthController::class, "profile"]);
         Route::post("settings", [AuthController::class, "settings"]);
         Route::post("read_notifications", [AuthController::class, "readNotifications"]);
+        Route::post("online", [AuthController::class, "getOnline"]);
     });
 
     Route::group(["prefix" => "support", "middleware" => CheckTelegram::class], function () {
@@ -166,6 +167,12 @@ Route::group(["prefix" => "api"], function () {
             Route::post('/', [AdminController::class, 'createVariant']);
             Route::post('{variant}', [AdminController::class, 'updateVariant']);
             Route::delete('{variant}', [AdminController::class, 'deleteVariant']);
+        });
+        Route::prefix('log')->group(function () {
+            Route::get('/', [AdminController::class, 'logs']);
+        });
+        Route::prefix('trial')->group(function () {
+            Route::post('/', [AdminController::class, 'setTrial']);
         });
     });
 });

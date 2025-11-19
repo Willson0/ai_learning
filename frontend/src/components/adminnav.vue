@@ -171,6 +171,11 @@ export default {
                     <i class="fa-solid fa-graduation-cap"></i>
                     <p>Предметы</p>
                 </div>
+                <div @click="$router.push('/admin/logging')">
+                    <div v-if="$route.path === '/admin/logging'" class="adminnav_main_nav_main_el_point">&middot;</div>
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <p>Логи</p>
+                </div>
             </div>
         </nav>
         <div class="adminnav_main_main">

@@ -23,6 +23,7 @@ use App\Models\Admin;
 use App\Models\AdminCookie;
 use App\Models\Course;
 use App\Models\Lesson;
+use App\Models\Log;
 use App\Models\Probe;
 use App\Models\State;
 use App\Models\Subject;
@@ -463,4 +464,14 @@ class AdminController extends Controller
         return $this->variants();
     }
 
+    public function logs (Request $request) {
+        return Log::limit(100)->get();
+    }
+
+    public function setTrial (Request $request) {
+        if (!$request->has("days")) abort(400, "Не введено количество дней");
+        if ($request->days < 0) abort(400, "Количество дней не может быть меньше 0");
+        utils::setTrial($request->days);
+        return response()->json(["ok" => true]);
+    }
 }

@@ -51,6 +51,8 @@ export default {
             levels: levels,
             selectedLevel: 'self',
             faculty: "",
+
+            online: 0,
         }
     },
     components: {
@@ -133,6 +135,13 @@ export default {
         else if (!this.$route.query.s) this.$router.push({ query: { s: 'home' }});
 
         this.fetchData();
+        setInterval(() => {
+            axios.post(config.backend + "auth/online", {
+                "initData": window.Telegram.WebApp.initData,
+            }).then((response) => {
+                 this.online = response.data.online;
+            });
+        }, 20000);
 
         window.Telegram.WebApp.BackButton.onClick(this.backByQuery);
         window.backByQueryFunction = this.backByQuery;
@@ -189,6 +198,8 @@ export default {
                 }
 
                 let user = response.data;
+                this.online = user?.online ?? 0;
+
                 user.courses.forEach(course => {
                     const lessons = course.lessons;
                     const total = lessons.length;
@@ -353,6 +364,12 @@ export default {
             <input v-if="selectedLevel === 'student'" type="text" v-model="faculty" placeholder="Факультет" id="new_name">
         </div>
         <button @click="sendSettings">Сохранить</button>
+    </div>
+    <div class="online">
+        <div>
+            <div class="online_circle"></div>
+            <p>{{online}}&nbsp; онлайн</p>
+        </div>
     </div>
 <!--    TODO: UNIQUE -->
     <chat-view v-if="$route.query.s === 'chat'" />

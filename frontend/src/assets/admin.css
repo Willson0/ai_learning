@@ -548,6 +548,39 @@ body.no-scroll {
 .admin_main_statistics_el_footer_info>i {
     margin-right:4px;
 }
+.admin_main_settings {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(2fr, 3fr));
+}
+.admin_main_settings>div {
+    min-width: 33%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+.admin_main_settings>div>label {
+    margin: auto 0;
+}
+.admin_main_settings>div>label>span {
+    font-size: 12px;
+    color: #c8c8c8;
+}
+.admin_main_settings>div>input {
+    padding: 10px;
+    border-radius: 2px;
+    margin: auto 0;
+    max-width: 100px;
+}
+.admin_main_settings>div>button {
+    padding: 0 5px;
+    border-radius: 2px;
+    background: linear-gradient(45deg, #389455, darkolivegreen);
+    transition: 0.2s;
+}
+.admin_main_settings>div>button:hover {
+    transform: translateY(-2px);
+}
 
 .admin_main_tasks_management {
     display:flex;

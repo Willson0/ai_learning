@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthSettingsRequest;
+use App\Http\utils;
 use App\Models\Achievement;
 use App\Models\Ad;
 use App\Models\Chat;
@@ -16,8 +17,10 @@ use App\Models\State;
 use App\Models\Subject;
 use App\Models\User;
 use App\Models\UserLesson;
+use Dompdf\Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -114,6 +117,13 @@ class AuthController extends Controller
         }
         if ($isFirst) $user->isFirst = true;
 
+        try {
+            $user->trial = utils::getTrial();
+            $user->online = utils::getOnline();
+        } catch (\Exception $ex) {
+            Log::critical($ex);
+        }
+
         return response()->json($user);
     }
 
@@ -131,5 +141,9 @@ class AuthController extends Controller
         Notification::where("user_id", $user->id)->update(["read" => true]);
 
         return response()->json(["success" => true]);
+    }
+
+    public function getOnline (Request $request) {
+        return response()->json(["online" => utils::getOnline()]);
     }
 }

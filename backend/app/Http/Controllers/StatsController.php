@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\utils;
 use App\Models\Lesson;
 use App\Models\News;
 use App\Models\ProbeUser;
@@ -32,7 +33,7 @@ class StatsController extends Controller
 
         return response()->json(["accounts" => $accountarr,
             "money" => $money, "money30" => $money30d, "usersPerDay" => $usersperday,
-            "logsPerDay" => $logsperday],
+            "logsPerDay" => $logsperday, "trial" => utils::getTrial()],
             200);
     }
 }

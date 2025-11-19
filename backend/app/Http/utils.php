@@ -13,7 +13,9 @@ use App\Models\Picture;
 use App\Models\Post;
 use App\Models\Service;
 use App\Models\User;
+use Carbon\Carbon;
 use Google\Cloud\Translate\V3\Client\TranslationServiceClient;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -394,5 +396,96 @@ class utils
         Log::critical("ORIGINAL MIME $mime");
 
         return $audio->getClientOriginalExtension() ?: $extension;
+    }
+
+    static function logging ($user, $message, $data) {
+        try {
+            return \App\Models\Log::create([
+                "user_id" => $user,
+                "text" => $message,
+                "data" => json_encode($data),
+            ]);
+        } catch (\Throwable $th) {
+            Log::critical($th);
+            return "";
+        }
+    }
+
+    const CACHE_KEY = 'fake_online_count';
+    const CACHE_LAST_UPDATED = 'fake_online_last_updated';
+
+    const ranges = [
+        // hour => [min, max]
+        [2, 10],   // 0
+        [2, 10],   // 1
+        [2, 10],   // 2
+        [2, 10],   // 3
+        [2, 10],   // 4
+        [2, 10],   // 5
+        [13, 27],  // 6
+        [13, 27],  // 7
+        [13, 27],  // 8
+        [13, 27],  // 9
+        [35, 102], // 10
+        [35, 102], // 11
+        [35, 102], // 12
+        [35, 102], // 13
+        [35, 102], // 14
+        [35, 102], // 15
+        [35, 102], // 16
+        [35, 102], // 17
+        [35, 102], // 18
+        [35, 102], // 19
+        [13, 27],  // 20
+        [13, 27],  // 21
+        [13, 27],  // 22
+        [2, 10],   // 23
+    ];
+
+    static public function getOnline() // OPTIMIZATION
+    {
+        $now = Carbon::now('Europe/Moscow');
+        $hour = $now->hour;
+
+        [$min, $max] = self::ranges[$hour];
+
+        $count = Cache::get(self::CACHE_KEY);
+        $lastUpdated = Cache::get(self::CACHE_LAST_UPDATED);
+
+        if ($count === null) {
+            $count = rand($min, $max);
+            Cache::put(self::CACHE_KEY, $count, 600);
+            Cache::put(self::CACHE_LAST_UPDATED, $now->timestamp, 600);
+            return $count;
+        }
+
+        $randPeriod = rand(10, 23);
+        $lastUpdated = $lastUpdated ? Carbon::createFromTimestamp($lastUpdated) : Carbon::now()->subMinutes(99);
+
+        if (abs($now->diffInSeconds($lastUpdated)) > $randPeriod) {
+            $deltaOptions = [-2, -1, 0, 1, 2, -1, 1, 0, 0];
+            $change = $deltaOptions[array_rand($deltaOptions)];
+            $newCount = $count + $change;
+
+            if ($newCount < $min) $newCount = $min;
+            if ($newCount > $max) $newCount = $max;
+
+            Cache::put(self::CACHE_KEY, $newCount, 600);
+            Cache::put(self::CACHE_LAST_UPDATED, $now->timestamp, 600);
+            return $newCount;
+        }
+        return $count;
+    }
+
+    static public function setTrial ($days = 7): int {
+        Cache::forever('trial', $days);
+        return $days;
+    }
+
+    static public function getTrial () {
+        $cache = Cache::get('trial');
+        if ($cache === null) $cache = self::setTrial();
+
+        return $cache;
     }
 }

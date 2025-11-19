@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\utils;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Telegram\Bot\FileUpload\InputFile;
@@ -35,38 +37,49 @@ class WebhookController extends Controller
                     "pinned_achievements" => json_encode([]),
                     "data" => "{}",
                 ]);
+                $user = User::find($user->id);
+
+                utils::logging($user->id, "Новый пользователь &{user} зарегистрировался", ["user" => $user]);
+
+                $text = $message->getText();
+                if (strpos($text, '/start') === 0) {
+                    $parts = explode(' ', $text);
+                    $param = isset($parts[1]) ? $parts[1] : null;
+
+                    $referral = User::where("id", $param)->first();
+                    if ($referral) {
+                        $user->from_user_id = $referral->id;
+                        $user->save();
+
+                        $bonuses = intval(env("BONUS_FROM_USER"));
+                        $referral->bonus += $bonuses;
+
+                        if ($referral->is_sub) $referral->sub_date = Carbon::parse($referral->sub_date)->addMonth();
+                        else $referral->sub_date = Carbon::now()->addMonth();
+
+                        $referral->save();
+
+                        $text = "Пользователь {$user->fullname} перешел по вашей реферальной ссылке!
+Вам начислено *$bonuses бонусов*,
+А также 1 месяц *улучшенного тарифа*";
+
+                        $escape_chars = ['[', ']', '(', ')', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
+                        foreach ($escape_chars as $char) {
+                            $text = str_replace($char, '\\' . $char, $text);
+                        }
+
+                        Telegram::sendMessage([
+                            "chat_id" => $referral->telegram_id,
+                            "text" => $text,
+                            "parse_mode" => "MarkdownV2"
+                        ]);
+                        utils::logging($user->id, "&{user} зарегистрировался по реферальной ссылке пользователя &{referral}", ["user" => $user, "referral" => $referral]);
+                    }
+                }
             }
 
             $text = $message->getText();
-
             if (strpos($text, '/start') === 0) {
-                $parts = explode(' ', $text);
-                $param = isset($parts[1]) ? $parts[1] : null;
-
-                $referral = User::where("id", $param)->first();
-                if ($referral) {
-                    $user->from_user_id = $referral->id;
-                    $user->save();
-
-                    $bonuses = intval(env("BONUS_FROM_USER"));
-                    $referral->bonus += $bonuses;
-                    $referral->save();
-
-                    $text = "Пользователь {$user->fullname} перешел по вашей реферальной ссылке!
-Вам начислено *$bonuses бонусов*!";
-
-                    $escape_chars = ['[', ']', '(', ')', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
-                    foreach ($escape_chars as $char) {
-                        $text = str_replace($char, '\\' . $char, $text);
-                    }
-
-                    Telegram::sendMessage([
-                        "chat_id" => $referral->telegram_id,
-                        "text" => $text,
-                        "parse_mode" => "MarkdownV2"
-                    ]);
-                }
-
                 $text = "*Добро пожаловать в наш бот! 👋*
 Здесь вы сможете подготовиться к самым сложным экзаменам на 100% с помощью нейросетей.
 
@@ -89,6 +102,10 @@ class WebhookController extends Controller
                                     "web_app" => [
                                         "url" => "https://" . env("DOMAIN")
                                     ]
+                                ],
+                                [
+                                    "text" => "Наш канал",
+                                    "url" => "https://t.me/usermodiai"
                                 ]
                             ]
                         ]

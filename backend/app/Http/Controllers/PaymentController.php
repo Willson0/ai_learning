@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\utils;
 use App\Models\Payment;
 use App\Models\User;
 use Carbon\Carbon;
@@ -70,6 +71,7 @@ class PaymentController extends Controller
 
     public function unLinkCard (Request $request) {
         $user = User::where("telegram_id", $request["initData"]["user"]["id"])->firstOrFail();
+        utils::logging($user->id, "&{user} отвязал свою банковскую карту. Данные: $user->card", ["user" => $user]);
 
         $user->payment_method_id = null;
         $user->card = null;
@@ -97,11 +99,14 @@ class PaymentController extends Controller
                         "text" => "💳 Ваша карта успешно привязана!",
                         "parse_mode" => "HTML"
                     ]);
+                    utils::logging($user->id, "&{user} привязал способ оплаты", ["user" => $user]);
                 }
                 $user->payment_method_id = $request->object["payment_method"]["id"];
             }
-            if ($request->object["payment_method"]["card"] ?? null)
+            if ($request->object["payment_method"]["card"] ?? null) {
                 $user->card = json_encode($request->object["payment_method"]["card"]);
+                utils::logging($user->id, "&{user} привязал свою банковскую карту. Данные: $user->card", ["user" => $user]);
+            }
 
             $payment->is_bought = true;
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\utils;
 use App\Models\Payment;
 use App\Models\User;
 use Carbon\Carbon;
@@ -15,6 +16,7 @@ class SubscriptionController extends Controller
         $user = User::where("telegram_id", $request["initData"]["user"]["id"])->firstOrFail();
         if ($user->user_trial == 1) abort(403,"Пробная подписка уже использовалась");
         if ($user->is_sub == 1) abort(403,"У вас уже есть подписка");
+        if ((int) utils::getTrial() === 0) abort(403, "Пробная подписка выключена в настройках бота");
 //        if ($user->payment_method_id == null) abort(403,"У вас не выбрана оплата");
 
         $botToken = env("TELEGRAM_BOT_TOKEN");
@@ -40,8 +42,10 @@ class SubscriptionController extends Controller
 
         $user->used_trial = 1;
         $user->is_sub = 1;
-        $user->sub_date = Carbon::now()->addDays(7);
+        $user->sub_date = Carbon::now()->addDays((int) utils::getTrial());
         $user->save();
+
+        utils::logging($user->id, "&{user} активировал пробную подписку", ["user" => $user]);
 
         return response()->json(["ok" => true]);
     }
