@@ -345,7 +345,6 @@ export default {
 </script>
 
 <template>
-    <div class="popup_notification_container"></div>
     <div class="loading">
 <!--        <div v-if="!notWhiteList">Добрый день, {{name}}</div>-->
 <!--        <div v-else>Вы не состоите<br>в белом списке</div>-->
@@ -371,6 +370,8 @@ export default {
             <p>{{online}}&nbsp; онлайн</p>
         </div>
     </div>
+    <div class="online_padding"></div>
+    <div class="popup_notification_container"></div>
 <!--    TODO: UNIQUE -->
     <chat-view v-if="$route.query.s === 'chat'" />
     <catalog-view v-else-if="$route.query.s === 'catalog'" />

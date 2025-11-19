@@ -101,7 +101,7 @@ button {
     background-color: var(--background);
     position: fixed;
     width: 100vw;
-    height: 100vh;
+    height: calc(100vh - 22px);
     overflow:hidden;
     top:0;
     left:0;
@@ -157,6 +157,9 @@ button {
     transition: 0.2s;
 }
 
+.online_padding {
+    height: 22px;
+}
 .online {
     background-color: var(--die);
     width: 100%;
@@ -199,7 +202,7 @@ button {
 
 /* ГЛАВНАЯ НАВИГАЦИЯ */
 .slot {
-    padding-top: 22px;
+    /*padding-top: 22px;*/
     margin-bottom: 100px;
 }
 .nav {
@@ -1766,7 +1769,7 @@ button {
 }
 
 .chat_view {
-    height: 100vh;
+    height: calc(100vh - 22px);
     display: flex;
 }
 .chat_view .chat {
@@ -2758,7 +2761,7 @@ button {
     padding: 16px;
     padding-bottom: 53px;
     box-sizing: border-box;
-    min-height: 100vh;
+    min-height: calc(100vh - 22px);
     display: flex;
     flex-direction: column;
 }
@@ -2879,7 +2882,7 @@ button {
     padding: 16px;
     padding-bottom: 53px;
     box-sizing: border-box;
-    min-height: 100vh;
+    min-height: calc(100vh - 22px);
     display: flex;
     flex-direction: column;
 }
@@ -3038,7 +3041,7 @@ button {
 
 /* ПОДДЕРЖКА */
 .support {
-    height: 100vh;
+    height: calc(100vh - 22px);
     display: flex;
     flex-direction: column;
 }
@@ -3050,8 +3053,9 @@ button {
     flex-direction:column-reverse;
     position:fixed;
     left:50%;
+    top:0;
     transform: translateX(-50%);
-    z-index:99999999999999999999999999999999;
+    z-index:9999999999999999999999999999999999;
 }
 .popup_notification_container>div {
     transition: none;
