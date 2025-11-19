@@ -1730,7 +1730,8 @@ button {
 }
 .chat_header {
     position: fixed;
-    top: 16px;
+    /* EDITED */
+    top: calc(16px + 22px);
     left: 16px;
     width: calc(100% - 32px);
     z-index: 10;
