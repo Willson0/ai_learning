@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command("schedule:check")->everyMinute();
 Schedule::command("subs:check")->hourly();
+Schedule::command("schedule:check-posts")->everyThirtySeconds();

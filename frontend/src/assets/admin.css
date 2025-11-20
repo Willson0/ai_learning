@@ -218,6 +218,10 @@ body.no-scroll {
     margin:0 20px;
 }
 
+.adminnav_main_nav_main {
+    overflow-y: scroll !important;
+    max-height: calc(100vh - 194px);
+}
 .adminnav_main_nav_main>div {
     display:flex;
     flex-direction:row;
@@ -226,6 +230,9 @@ body.no-scroll {
     position:relative;
     height:30px;
     cursor:pointer;
+}
+.adminnav_main_nav_main>div:last-child {
+    margin-bottom: 20px;
 }
 
 .adminnav_main_nav_main_el_point {
@@ -3247,4 +3254,47 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .show-answers-btn:hover {
     background: #2739a6;
+}
+
+
+/*MAILING*/
+.selectDate .locked {
+    position:absolute;
+    width:100%;
+    height:100%;
+    top:0;
+    left:0;
+    background-color: rgba(0, 0, 0, 0.32);
+    z-index:100000;
+    display:flex;
+}
+
+.selectDate .locked>div {
+    margin:auto;
+    background-color:white;
+    border-radius:10px;
+    padding:40px;
+    display:flex;
+    flex-direction:column;
+    text-align:center;
+}
+
+.selectDate .locked>div>img {
+    width:100px;
+    margin: 0 auto;
+}
+
+.locked_title {
+    font-size:24px;
+    font-weight:600;
+    margin-top:10px;
+}
+
+.locked_description {
+    margin-top:4px;
+    color:black !important;
+}
+
+.locked_description>a {
+    color:black;
 }

@@ -104,6 +104,8 @@ class WebhookController extends Controller
                                         "url" => "https://" . env("DOMAIN")
                                     ]
                                 ],
+                            ],
+                            [
                                 [
                                     "text" => "Наш канал",
                                     "url" => "https://t.me/usermodiai"

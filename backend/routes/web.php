@@ -7,6 +7,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProbeController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StatsController;
@@ -173,6 +174,12 @@ Route::group(["prefix" => "api"], function () {
         });
         Route::prefix('trial')->group(function () {
             Route::post('/', [AdminController::class, 'setTrial']);
+        });
+        Route::prefix('mailing')->group(function () {
+            Route::get("/", [PostController::class, 'index']);
+            Route::post("/", [PostController::class, "store"]);
+            Route::delete("/{post}", [PostController::class, "destroy"]);
+            Route::post("/{post}", [PostController::class, "update"]);
         });
     });
 });

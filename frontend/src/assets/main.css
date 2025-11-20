@@ -785,6 +785,11 @@ button {
 .profile_referral_description {
     margin-top: 16px;
 }
+.profile_referral_info {
+    font-size: 14px;
+    margin-top: 12px;
+    color: #dadada;
+}
 .profile_referral_bonus {
     margin-top: 16px;
     display: flex;

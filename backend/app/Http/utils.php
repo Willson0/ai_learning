@@ -11,9 +11,11 @@ use App\Models\Lesson;
 use App\Models\Notification;
 use App\Models\Picture;
 use App\Models\Post;
+use App\Models\Proxy;
 use App\Models\Service;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Google\Cloud\Translate\V3\Client\TranslationServiceClient;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
@@ -487,5 +489,125 @@ class utils
         if ($cache === null) $cache = self::setTrial();
 
         return $cache;
+    }
+
+    public static function sendToGroupByBot ($group, $text, $photo = null) { // TODO: Отправлять всем пользователям бота, а не в группы
+        $token = env("TELEGRAM_BOT_TOKEN");
+//        $text = preg_replace('#<\/?p\b[^>]*>#i', '', $text);
+        while (true) {
+            try {
+                $options = [];
+                if ($photo) {
+                    $mimeType = Storage::disk("public")->mimeType($photo);
+                    $isImage = strpos($mimeType, "image/") === 0;
+                    $isVideo = strpos($mimeType, "video/") === 0;
+
+                    if ($isImage) {
+                        $response = Http::withOptions($options)
+                            ->attach('photo', Storage::disk("public")->get($photo), $photo)
+                            ->post('https://api.telegram.org/bot' . $token . '/sendPhoto', [
+                                'chat_id' => $group,
+                                'caption' => $text,
+                                "parse_mode" => "HTML"
+                            ]);
+                    } elseif ($isVideo) {
+                        $response = Http::withOptions($options)
+                            ->attach('video', Storage::disk("public")->get($photo), $photo)
+                            ->post('https://api.telegram.org/bot' . $token . '/sendVideo', [
+                                'chat_id' => $group,
+                                'caption' => $text,
+                                "parse_mode" => "HTML"
+                            ]);
+                    }
+                } else {
+                    $data = [
+                        'chat_id' => $group,
+                        'text' => $text,
+                        'parse_mode' => 'HTML',
+                    ];
+
+                    $response = Http::withOptions($options)
+                        ->post('https://api.telegram.org/bot' . $token . '/sendMessage', $data);
+                }
+                Log::critical($response->json());
+                break;
+            } catch (Exception $e) {
+                Log::critical($e->getMessage());
+            }
+        }
+
+        return 1;
+    }
+
+    public static function validateTelegramAttachment($file, $maxSizeBytes = 10 * 1024 * 1024, $maxWidth = 10000, $maxHeight = 10000)
+    {
+        // Список разрешённых расширений и mime-типов
+        $allowedExtensions = [
+            'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff',
+            'mp4', 'mov', 'avi', 'mkv', 'webm', 'wmv', 'flv', 'mpeg', '3gp'
+        ];
+
+        $allowedMimeTypes = [
+            // изображения
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'image/webp',
+            'image/bmp',
+            'image/tiff',
+            // видео
+            'video/mp4',
+            'video/x-m4v',
+            'video/quicktime',
+            'video/x-msvideo',
+            'video/x-matroska',
+            'video/webm',
+            'video/x-ms-wmv',
+            'video/x-flv',
+            'video/mpeg',
+            'video/3gpp',
+            'video/avi'
+        ];
+
+        // Проверка на наличие файла
+        if (!$file || !$file->isValid()) {
+            throw new Exception('Не загружен файл.');
+        }
+
+        // Получаем расширение и mime-тип
+        $extension = strtolower($file->getClientOriginalExtension());
+        $mimeType = $file->getMimeType();
+
+        if (!in_array($extension, $allowedExtensions) || !in_array($mimeType, $allowedMimeTypes)) {
+            throw new Exception('Формат файла не поддерживается. Допустимы: jpeg, jpg, png, gif, webp, bmp, tiff.');
+        }
+
+        // Проверка размера файла (в байтах)
+        if ($file->getSize() > $maxSizeBytes) {
+            throw new Exception('Файл слишком большой. Максимальный размер: ' . number_format($maxSizeBytes / 1024 / 1024, 2) . ' МБ');
+        }
+
+        $allowedImageMimeTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'image/webp',
+            'image/bmp',
+            'image/tiff',
+        ];
+        if (in_array($file->getMimeType(), $allowedImageMimeTypes)) {
+            // Это картинка — проверяем размеры
+            $imageSize = getimagesize($file->getPathname());
+            if (!$imageSize) {
+                throw new Exception('Не удалось получить размеры изображения.');
+            }
+
+            [$width, $height] = $imageSize;
+            if ($width + $height > $maxHeight) {
+                throw new Exception("Изображение слишком большое по габаритам. Допустимые: высота + ширина = 10.000 пикселей");
+            }
+        }
+
+        return true;
     }
 }

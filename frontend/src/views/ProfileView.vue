@@ -157,6 +157,9 @@ import config from "@/config.json";
                     </button>
                 </div>
             </div>
+            <div class="profile_referral_info">
+                За каждого приглашенного друга вы получаете 1 месяц улучшенного тарифа!
+            </div>
             <div class="profile_referral_links" v-if="user.referrals?.length > 0">
                 <img src="/links_background.png" alt="">
                 <div class="profile_referral_links_title">Активные приглашения</div>

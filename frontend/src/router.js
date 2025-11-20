@@ -12,6 +12,7 @@ import adminAdView from "@/views/admin/adminAdView.vue";
 import adminProbesView from "@/views/admin/adminProbesView.vue";
 import adminSubjectsView from "@/views/admin/adminSubjectsView.vue";
 import adminLoggingView from "@/views/admin/adminLoggingView.vue";
+import adminMailingView from "@/views/admin/adminMailingView.vue";
 
 
 const routes = [
@@ -90,6 +91,12 @@ const routes = [
         component: adminLoggingView,
         meta: { title: 'CryptoCourses | Logging', h: 'Логи' },
         name: 'logging'
+    },
+    {
+        path: "/admin/mailing",
+        component: adminMailingView,
+        meta: { title: 'CryptoCourses | Mailing', h: 'Рассылка' },
+        name: 'mailing'
     },
 ]
 

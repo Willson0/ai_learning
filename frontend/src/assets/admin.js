@@ -194,3 +194,19 @@ export function removeLoad (cl) {
     let el = document.querySelector (`.${cl}>.loadingbar`);
     el.remove();
 }
+
+export function getFileType(filename) {
+    // приведение к нижнему регистру, вырезаем расширение
+    const ext = filename.split('.').pop().toLowerCase();
+
+    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff'];
+    const videoExts = ['mp4', 'mov', 'avi', 'mkv', 'webm', 'wmv', 'flv', 'mpeg', '3gp'];
+
+    if (imageExts.includes(ext)) {
+        return 'image';
+    } else if (videoExts.includes(ext)) {
+        return 'video';
+    } else {
+        return 'unknown';
+    }
+}

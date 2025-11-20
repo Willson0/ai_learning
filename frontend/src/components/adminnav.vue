@@ -176,6 +176,11 @@ export default {
                     <i class="fa-solid fa-graduation-cap"></i>
                     <p>Логи</p>
                 </div>
+                <div @click="$router.push('/admin/mailing')">
+                    <div v-if="$route.path === '/admin/mailing'" class="adminnav_main_nav_main_el_point">&middot;</div>
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <p>Рассылка</p>
+                </div>
             </div>
         </nav>
         <div class="adminnav_main_main">
