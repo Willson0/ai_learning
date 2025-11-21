@@ -493,47 +493,43 @@ class utils
 
     public static function sendToGroupByBot ($group, $text, $photo = null) { // TODO: Отправлять всем пользователям бота, а не в группы
         $token = env("TELEGRAM_BOT_TOKEN");
-//        $text = preg_replace('#<\/?p\b[^>]*>#i', '', $text);
-        while (true) {
-            try {
-                $options = [];
-                if ($photo) {
-                    $mimeType = Storage::disk("public")->mimeType($photo);
-                    $isImage = strpos($mimeType, "image/") === 0;
-                    $isVideo = strpos($mimeType, "video/") === 0;
+        try {
+            $options = [];
+            if ($photo) {
+                $mimeType = Storage::disk("public")->mimeType($photo);
+                $isImage = strpos($mimeType, "image/") === 0;
+                $isVideo = strpos($mimeType, "video/") === 0;
 
-                    if ($isImage) {
-                        $response = Http::withOptions($options)
-                            ->attach('photo', Storage::disk("public")->get($photo), $photo)
-                            ->post('https://api.telegram.org/bot' . $token . '/sendPhoto', [
-                                'chat_id' => $group,
-                                'caption' => $text,
-                                "parse_mode" => "HTML"
-                            ]);
-                    } elseif ($isVideo) {
-                        $response = Http::withOptions($options)
-                            ->attach('video', Storage::disk("public")->get($photo), $photo)
-                            ->post('https://api.telegram.org/bot' . $token . '/sendVideo', [
-                                'chat_id' => $group,
-                                'caption' => $text,
-                                "parse_mode" => "HTML"
-                            ]);
-                    }
-                } else {
-                    $data = [
-                        'chat_id' => $group,
-                        'text' => $text,
-                        'parse_mode' => 'HTML',
-                    ];
-
+                if ($isImage) {
                     $response = Http::withOptions($options)
-                        ->post('https://api.telegram.org/bot' . $token . '/sendMessage', $data);
+                        ->attach('photo', Storage::disk("public")->get($photo), $photo)
+                        ->post('https://api.telegram.org/bot' . $token . '/sendPhoto', [
+                            'chat_id' => $group,
+                            'caption' => $text,
+                            "parse_mode" => "HTML"
+                        ]);
+                } elseif ($isVideo) {
+                    $response = Http::withOptions($options)
+                        ->attach('video', Storage::disk("public")->get($photo), $photo)
+                        ->post('https://api.telegram.org/bot' . $token . '/sendVideo', [
+                            'chat_id' => $group,
+                            'caption' => $text,
+                            "parse_mode" => "HTML"
+                        ]);
                 }
-                Log::critical($response->json());
-                break;
-            } catch (Exception $e) {
-                Log::critical($e->getMessage());
+            } else {
+                $data = [
+                    'chat_id' => $group,
+                    'text' => $text,
+                    'parse_mode' => 'HTML',
+                ];
+
+                $response = Http::withOptions($options)
+                    ->post('https://api.telegram.org/bot' . $token . '/sendMessage', $data);
             }
+            Log::critical($response->json());
+        } catch (Exception $e) {
+            Log::critical($e->getMessage());
         }
 
         return 1;
