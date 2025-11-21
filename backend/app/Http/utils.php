@@ -491,32 +491,41 @@ class utils
         return $cache;
     }
 
-    public static function sendToGroupByBot ($group, $text, $photo = null) { // TODO: Отправлять всем пользователям бота, а не в группы
+    public static function sendToGroupByBot ($group, $text, $photos = null) { // TODO: Отправлять всем пользователям бота, а не в группы
         $token = env("TELEGRAM_BOT_TOKEN");
         try {
             $options = [];
-            if ($photo) {
-                $mimeType = Storage::disk("public")->mimeType($photo);
-                $isImage = strpos($mimeType, "image/") === 0;
-                $isVideo = strpos($mimeType, "video/") === 0;
+            if ($photos) {
+                if (is_string($photos)) $photos = json_decode($photos, 1);
+                $http = Http::withOptions($options);
 
-                if ($isImage) {
-                    $response = Http::withOptions($options)
-                        ->attach('photo', Storage::disk("public")->get($photo), $photo)
-                        ->post('https://api.telegram.org/bot' . $token . '/sendPhoto', [
-                            'chat_id' => $group,
-                            'caption' => $text,
-                            "parse_mode" => "HTML"
-                        ]);
-                } elseif ($isVideo) {
-                    $response = Http::withOptions($options)
-                        ->attach('video', Storage::disk("public")->get($photo), $photo)
-                        ->post('https://api.telegram.org/bot' . $token . '/sendVideo', [
-                            'chat_id' => $group,
-                            'caption' => $text,
-                            "parse_mode" => "HTML"
-                        ]);
+                foreach ($photos as $i => $photo) {
+                    $attachName = "attach".$i;
+
+                    $mimeType = Storage::disk("public")->mimeType($photo);
+                    $isImage = strpos($mimeType, "image/") === 0;
+                    $isVideo = strpos($mimeType, "video/") === 0;
+
+                    if ($isImage) $type = 'photo';
+                    elseif ($isVideo) $type = 'video';
+
+                    $mediaItem = [
+                        'type'  => $type,
+                        'media' => "attach://{$attachName}"
+                    ];
+
+                    if ($i === 0 && $text) {
+                        $mediaItem['caption'] = $text;
+                        $mediaItem['parse_mode'] = 'HTML';
+                    }
+                    $media[] = $mediaItem;
+                    $http = $http->attach($attachName, Storage::disk("public")->get($photo), basename($photo));
                 }
+
+                $response = $http->post('https://api.telegram.org/bot' . $token . '/sendMediaGroup', [
+                    'chat_id' => $group,
+                    'media' => json_encode($media)
+                ]);
             } else {
                 $data = [
                     'chat_id' => $group,

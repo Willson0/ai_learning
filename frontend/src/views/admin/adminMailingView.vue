@@ -159,22 +159,7 @@ export default {
         addimg (ev) {
             let files = ev.target.files;
             for (let file of files) {
-                if (file && file.type.startsWith("image/")) {
-                    this.attachments.push(file);
-                    requestAnimationFrame(() => {
-                        let el =  document.querySelectorAll(".newPost_image>div>img");
-                        el = el[el.length - 1];
-                        el.src = URL.createObjectURL(file);
-                    });
-                } else if (file && file.type.startsWith("video/")) {
-                    this.attachments.push(file);
-                    requestAnimationFrame(() => {
-                        let el = document.querySelectorAll(".newPost_image>div>video");
-                        el = el[el.length - 1];
-                        el.src = URL.createObjectURL(file);
-                        el.load();
-                    });
-                }
+                this.attachments.push(file);
             }
             this.$refs.photoInput.value = "";
         },
@@ -290,7 +275,8 @@ export default {
 
             let data = new FormData();
             data.append("text", this.html);
-            if (this.photo) data.append("attachment", this.photo);
+            if (this.attachments.length > 0)
+                for (let img of this.attachments) data.append("attachments[]", img);
             if (this.date) data.append("date", datetime.toISOString());
             if (this.repeat) {
                 data.append("time_repeat", this.repeat_time);
@@ -331,8 +317,10 @@ export default {
             else if (post.end_date) this.not_repeat = "date";
         },
         removeAttachment (id) {
-            console.log(id);
             this.attachments = this.attachments.filter((a, idx) => idx !== id);
+        },
+        createURL (file) {
+            return URL.createObjectURL(file);
         }
     },
 }
@@ -495,8 +483,8 @@ export default {
                 <div class="newPost_groupName">Ai Моди Бот🧑‍🎓</div>
                 <div class="newPost_image">
                     <div v-for="(attachment, key) in attachments" class="newPost_image_item">
-                        <img :style="confirming === key ? 'filter:blur(3px);' : ''" @click="confirming = key" v-show="(attachment) && attachment.type.startsWith('image/')" alt="">
-                        <video v-show="(attachment) && attachment.type.startsWith('video/')" controls></video>
+                        <img :src="createURL(attachment)" :style="confirming === key ? 'filter:blur(3px);' : ''" @click="confirming = key" v-show="(attachment) && attachment.type.startsWith('image/')" alt="">
+                        <video :src="createURL(attachment)" v-show="(attachment) && attachment.type.startsWith('video/')" controls @click="confirming = key"></video>
 
                         <div v-if="confirming === key" class="newPost_image_confirm">
                             <button @click="confirming = null; removeAttachment(key)" class="newPost_button delete">Удалить</button>

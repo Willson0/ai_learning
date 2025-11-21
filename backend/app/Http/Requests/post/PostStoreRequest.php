@@ -23,7 +23,8 @@ class PostStoreRequest extends FormRequest
     {
         return [
             "text" => "required|string|min:3",
-            "attachment" => "nullable|file",
+            "attachments" => "nullable|array",
+            "attachments.*" => "nullable|file",
             "date" => "nullable|date",
             "time_repeat" => "nullable|integer|min:61",
             "end_date" => "nullable|date",

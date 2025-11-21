@@ -267,7 +267,8 @@ button {
 .newPost_image>div:last-child {
   min-height: 200px;
 }
-.newPost_image_item img {
+.newPost_image_item img,
+.newPost_image_item video {
   width: 100%;
   object-fit: cover;
   height: 100%;
@@ -417,6 +418,7 @@ button {
   transform:translate(-50%, -50%);
   z-index:101;
   gap:10px;
+  width: fit-content;
 }
 
 .newPost_image_confirm>button {

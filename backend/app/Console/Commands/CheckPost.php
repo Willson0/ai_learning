@@ -35,11 +35,14 @@ class CheckPost extends Command
         Log::info("Checking posts...");
         $schedules = Mailing::where("next", "<=", Carbon::now("Europe/Moscow"))->where("status", 0)->get();
         foreach ($schedules as $schedule) {
+            $schedule->status = 1;
+            $schedule->save();
+
             $post = $schedule->post;
             $users = User::all();
 
             foreach ($users as $user) {
-                utils::sendToGroupByBot($user->telegram_id, $post->text, $post->attachment);
+                utils::sendToGroupByBot($user->telegram_id, $post->text, $post->attachments);
                 usleep(50000);
             }
 
@@ -53,9 +56,6 @@ class CheckPost extends Command
                     "status" => 0,
                 ]);
             }
-
-            $schedule->status = 1;
-            $schedule->save();
         }
     }
 }

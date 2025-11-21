@@ -48,20 +48,25 @@ class PostController extends Controller
         if (isset($data["end_date"]) AND isset($data["end_count"]))
             abort (409, "Не может быть указано два окончания повтора");
 
-        if (isset($data["attachment"])) {
-            try {
-                utils::validateTelegramAttachment($data["attachment"]);
-            } catch (Exception $e) {
-                return response()->json(['error' => $e->getMessage()]);
+        if (isset($data["attachments"])) {
+            $attachments = $data["attachments"];
+            $data["attachments"] = [];
+            foreach ($attachments as $key => $attachment) {
+                try {
+                    utils::validateTelegramAttachment($attachment);
+                } catch (Exception $e) {
+                    return response()->json(['error' => $e->getMessage()]);
+                }
+
+                $ext = $attachment->getClientOriginalExtension();
+                $time = time();
+                Storage::disk("public")->putFileAs("posts", $attachment, "post_" . $time . $key . ".$ext");
+
+                $data["attachments"][] = "posts/post_" . $time . $key . ".$ext";
             }
-
-            $ext = $data["attachment"]->getClientOriginalExtension();
-            $time = time();
-            Storage::disk("public")->putFileAs("posts", $data["attachment"], "post_" . $time . ".$ext");
-
-            $data["attachment"] = "posts/post_" . $time . ".$ext";
         }
 
+        $data["attachments"] = json_encode($data["attachments"]);
         $data["text"] = preg_replace('/\*\*(.+?)\*\*/s', '*$1*', $data["text"]);
         $data["text"] = preg_replace('/__(.+?)__/s', '_$1_', $data["text"]);
 
