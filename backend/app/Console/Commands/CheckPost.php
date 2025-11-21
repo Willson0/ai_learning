@@ -42,7 +42,15 @@ class CheckPost extends Command
             $users = User::all();
 
             foreach ($users as $user) {
-                utils::sendToGroupByBot($user->telegram_id, $post->text, $post->attachments);
+                $photos = utils::sendToGroupByBot($user->telegram_id, $post->text, $post->attachments);
+                if ($photos !== null) {
+                    $json = json_encode($photos);
+                    if ($post->attachments !== $json) {
+                        $post->attachments = $json;
+                        $post->save();
+                        Log::critical("Post $post->id changed");
+                    }
+                }
                 usleep(50000);
             }
 

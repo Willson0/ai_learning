@@ -64,9 +64,9 @@ class PostController extends Controller
 
                 $data["attachments"][] = "posts/post_" . $time . $key . ".$ext";
             }
-        }
 
-        $data["attachments"] = json_encode($data["attachments"]);
+            $data["attachments"] = json_encode($data["attachments"]);
+        }
         $data["text"] = preg_replace('/\*\*(.+?)\*\*/s', '*$1*', $data["text"]);
         $data["text"] = preg_replace('/__(.+?)__/s', '_$1_', $data["text"]);
 
@@ -103,20 +103,16 @@ class PostController extends Controller
         if (isset($data["end_date"])) $data["end_count"] = null;
         else if (isset($data["end_count"])) $data["end_date"] = null;
 
-        if ($request->hasAny("attachment")) {
-            if ($request->hasFile('attachment')) {
-                try {
-                    utils::validateTelegramAttachment($data["attachment"]);
-                } catch (Exception $e) {
-                    return response()->json(['error' => $e->getMessage()]);
+        if ($request->has("attachments")) {
+            $attachments = json_decode($request["attachments"], true);
+            foreach ($attachments as $key => &$attachment) {
+                if (preg_match('/^attachments[0-9]+$/', $attachment)) {
+                    $ext = $request->file($attachment)->getClientOriginalExtension(); $time = time();
+                    Storage::disk("public")->putFileAs("posts", $request->file($attachment), "post_" . $time . $key . ".$ext");
+                    $attachment = "posts/post_" . $time . $key . ".$ext";
                 }
-
-                if ($post->attachment) Storage::disk("public")->delete($post["attachment"]);
-                $ext = $request["attachment"]->getClientOriginalExtension(); $time = time();
-                Storage::disk("public")->putFileAs("posts", $request["attachment"], "post_" . $time . ".$ext");
-                $data["attachment"] = "posts/post_" . $time . ".$ext";
             }
-            else if (!json_decode($request->attachment)) $data["attachment"] = null;
+            $data["attachments"] = $attachments;
         }
 
         Log::critical($data);

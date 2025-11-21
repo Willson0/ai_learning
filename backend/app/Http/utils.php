@@ -493,39 +493,71 @@ class utils
 
     public static function sendToGroupByBot ($group, $text, $photos = null) { // TODO: Отправлять всем пользователям бота, а не в группы
         $token = env("TELEGRAM_BOT_TOKEN");
+        $resultArray = null;
         try {
             $options = [];
             if ($photos) {
                 if (is_string($photos)) $photos = json_decode($photos, 1);
+
+                $media = [];
                 $http = Http::withOptions($options);
 
-                foreach ($photos as $i => $photo) {
-                    $attachName = "attach".$i;
+                foreach ($photos as $i => $item) {
+                    if (isset($item['file_id'])) {
+                        $type = ($item['type'] === 'image') ? 'photo' : $item['type'];
+                        $mediaItem = [
+                            'type' => $type,
+                            'media' => $item['file_id']
+                        ];
+                    } else {
+                        $mimeType = Storage::disk("public")->mimeType($item);
+                        $isImage = strpos($mimeType, "image/") === 0;
+                        $isVideo = strpos($mimeType, "video/") === 0;
 
-                    $mimeType = Storage::disk("public")->mimeType($photo);
-                    $isImage = strpos($mimeType, "image/") === 0;
-                    $isVideo = strpos($mimeType, "video/") === 0;
+                        if ($isImage) $type = 'photo';
+                        elseif ($isVideo) $type = 'video';
+                        else continue;
 
-                    if ($isImage) $type = 'photo';
-                    elseif ($isVideo) $type = 'video';
+                        $attachName = "attach" . $i;
+                        $mediaItem = [
+                            'type' => $type,
+                            'media' => "attach://{$attachName}"
+                        ];
+                        $http = $http->attach($attachName, Storage::disk("public")->get($item), basename($item));
+                    }
 
-                    $mediaItem = [
-                        'type'  => $type,
-                        'media' => "attach://{$attachName}"
-                    ];
 
                     if ($i === 0 && $text) {
                         $mediaItem['caption'] = $text;
                         $mediaItem['parse_mode'] = 'HTML';
                     }
                     $media[] = $mediaItem;
-                    $http = $http->attach($attachName, Storage::disk("public")->get($photo), basename($photo));
                 }
 
                 $response = $http->post('https://api.telegram.org/bot' . $token . '/sendMediaGroup', [
                     'chat_id' => $group,
                     'media' => json_encode($media)
                 ]);
+
+                $json = $response->json();
+                Log::critical($json);
+
+                if (isset($json['result']) && is_array($json['result'])) {
+                    foreach ($json['result'] as $item) {
+                        if (isset($item['photo'])) {
+                            $lastPhoto = end($item['photo']);
+                            $resultArray[] = [
+                                "file_id" => $lastPhoto['file_id'],
+                                "type" => "image"
+                            ];
+                        } elseif (isset($item['video'])) {
+                            $resultArray[] = [
+                                "file_id" => $item['video']['file_id'],
+                                "type" => "video"
+                            ];
+                        }
+                    }
+                }
             } else {
                 $data = [
                     'chat_id' => $group,
@@ -541,7 +573,7 @@ class utils
             Log::critical($e->getMessage());
         }
 
-        return 1;
+        return $resultArray;
     }
 
     public static function validateTelegramAttachment($file, $maxSizeBytes = 10 * 1024 * 1024, $maxWidth = 10000, $maxHeight = 10000)

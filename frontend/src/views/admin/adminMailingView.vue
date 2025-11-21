@@ -85,7 +85,7 @@ export default {
 
         axios.defaults.withCredentials = true;
         await axios.get(config.backend + "admin/mailing").then((response) => {
-            this.posts = response.data;
+            this.posts = this.deepParse(response.data);
         });
     },
     unmounted () {
@@ -105,6 +105,36 @@ export default {
         }
     },
     methods: {
+        isLikelyJson(str) {
+            str = str.trim();
+            return (
+                (str.startsWith('{') && str.endsWith('}')) ||
+                (str.startsWith('[') && str.endsWith(']'))
+            );
+        },
+        deepParse(obj) {
+            if (typeof obj === 'string') {
+                try {
+                    if (this.isLikelyJson(obj)) {
+                        let parsed = JSON.parse(obj);
+                        return this.deepParse(parsed);
+                    } else {
+                        return obj;
+                    }
+                } catch (e) {
+                    return obj;
+                }
+            } else if (Array.isArray(obj)) {
+                return obj.map(this.deepParse);
+            } else if (typeof obj === 'object' && obj !== null) {
+                let res = {};
+                for (let key in obj) {
+                    res[key] = this.deepParse(obj[key]);
+                }
+                return res;
+            }
+            return obj;
+        },
         getFileType,
         toggleBold() {
             this.editor.chain().focus().toggleBold().run()
@@ -156,10 +186,11 @@ export default {
             this.photo = files[0];
             document.querySelectorAll(".newPost_image>img").forEach((el) => el.src = URL.createObjectURL(files[0]));
         },
-        addimg (ev) {
+        addimg (ev, isEditing = false) {
             let files = ev.target.files;
             for (let file of files) {
-                this.attachments.push(file);
+                if (isEditing) this.editedPost.attachments.push(file);
+                else this.attachments.push(file);
             }
             this.$refs.photoInput.value = "";
         },
@@ -200,7 +231,6 @@ export default {
             datetime.setHours(this.time.hours + 3);
             datetime.setMinutes(this.time.minutes);
 
-
             if (this.not_repeat === "date") {
                 this.editedPost.end_date = new Date(this.editedPost.end_date);
                 this.editedPost.end_date.setHours(this.editedPost.end_date.getHours() + 3);
@@ -213,10 +243,18 @@ export default {
 
             let formdata = new FormData();
             for (let key in this.editedPost) {
-                console.log(key);
-                if (key === "attachment") {
-                    if (!this.editedPost[key] && this.photo) formdata.append("attachment", this.photo);
-                    if (!this.editedPost[key] && !this.photo) formdata.append("attachment", null);
+                if (key === "attachments") {
+                    let index = 0;
+                    let data = [];
+                    for (let attachment of this.editedPost.attachments) {
+                        if (attachment instanceof File) {
+                            formdata.append("attachments" + index, attachment);
+                            data.push("attachments" + index);
+                        } else data.push(attachment);
+                        index += 1;
+                    }
+                    console.log(data);
+                    formdata.append("attachments", JSON.stringify(data));
                 }
                 else if (key === "date") formdata.append("date", datetime.toISOString());
                 else if (key === "time_repeat" && !this.repeat) formdata.append("time_repeat", null);
@@ -234,7 +272,7 @@ export default {
 
                 notify(`Пост №${this.editedPost.id} успешно обновлен!`);
                 axios.get(config.backend + "admin/mailing").then((response) => {
-                    this.posts = response.data;
+                    this.posts = this.deepParse(response.data);
                     this.hidepopup();
                 })
             }).catch((response) => {
@@ -290,7 +328,7 @@ export default {
 
                 this.hidepopup();
                 axios.get(config.backend + "admin/mailing").then((response) => {
-                    this.posts = response.data;
+                    this.posts = this.deepParse(response.data);
                 });
                 this.editor.commands.setContent('');
             }).catch((response) => {
@@ -300,8 +338,8 @@ export default {
         updateEdit (post) {
             this.editedPost = { ...post };
             this.editEditor.commands.setContent('<p>' + this.editedPost.text.replace(/(\n)/g, "</p><p>") + '</p>');
+            if (this.editedPost.attachments == null) this.editedPost.attachments = [];
 
-            this.photo = null;
             this.showpopup('edit_post');
 
             let datetime = new Date(post.date + "+03:00");
@@ -321,6 +359,21 @@ export default {
         },
         createURL (file) {
             return URL.createObjectURL(file);
+        },
+        isImage (attachment) {
+            if (typeof attachment !== 'string')
+                return attachment.type.startsWith('image/');
+
+            const imgExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'tiff', 'ico'];
+            const videoExts = ['mp4', 'avi', 'mov', 'wmv', 'webm', 'flv', 'mkv', 'mpeg', 'mpg', '3gp', 'm4v', 'ts'];
+
+            const match = attachment.toLowerCase().match(/\.([0-9a-z]+)$/i);
+            if (!match) return null;
+            const ext = match[1];
+
+            if (imgExts.includes(ext)) return true;
+            if (videoExts.includes(ext)) return false;
+            return null;
         }
     },
 }
@@ -391,22 +444,24 @@ export default {
                 <div class="newPost">
                     <div class="newPost_groupName">Ai Моди Бот🧑‍🎓</div>
                     <div class="newPost_image">
-                        <template v-for="attach in editedPost.attachment">
-                            <img :style="confirming ? 'filter:blur(3px);' : ''" @click="confirming = true" :src="config.storage + editedPost.attachment" v-show="(editedPost.attachment || photo) && (photo?.type?.startsWith('image/') || (getFileType(editedPost.attachment) === 'image'))" alt="">
-                            <video v-show="(editedPost.attachment || photo) && (photo?.type?.startsWith('video/') || (getFileType(editedPost.attachment) === 'video'))" controls :src="config.storage + editedPost.attachment"></video>
-                        </template>
-
-                        <div v-if="confirming" class="newPost_image_confirm">
-                            <button @click="confirming = 0; editedPost.attachment = null; photo = null" class="newPost_button delete">Удалить</button>
-                            <button @click="confirming = 0" class="newPost_button cancel">Отмена</button>
-                        </div>
-                        <label @drop="drop" @dragover="ondragover" class="newPost_image_borders" for="photo">
-                            <div>
-                                <i class="fa-regular fa-image"></i>
-                                <div>Выберите или перетащите картинку для поста</div>
+                        <div v-for="(attachment, key) in editedPost.attachments" class="newPost_image_item">
+                            <img :src="typeof attachment === 'object' ? createURL(attachment) : config.storage + attachment" :style="confirming === key ? 'filter:blur(3px);' : ''" @click="confirming = key" v-show="(attachment) && isImage(attachment)" alt="">
+                            <video :src="typeof attachment === 'object' ? createURL(attachment) : config.storage + attachment" v-show="(attachment) && !isImage(attachment)" controls @click="confirming = key"></video>
+<!--                            TODO: checking is video-->
+                            <div v-if="confirming === key" class="newPost_image_confirm">
+                                <button @click="confirming = null; editedPost.attachments.splice(key, 1)" class="newPost_button delete">Удалить</button>
+                                <button @click="confirming = null" class="newPost_button cancel">Отмена</button>
                             </div>
-                        </label>
-                        <input ref="photoInput" @change="addimg" style="display:none" type="file" id="photo" accept="image/*,video/*,.gif">
+                        </div>
+                        <div>
+                            <label @drop="drop" @dragover="ondragover" class="newPost_image_borders" for="photo">
+                                <div>
+                                    <i class="fa-regular fa-image"></i>
+                                    <div>Выберите или перетащите картинку для поста</div>
+                                </div>
+                            </label>
+                            <input multiple ref="photoInput" @change="addimg($event, 1)" style="display:none" type="file" id="photo" accept="image/*,video/*,.gif">
+                        </div>
                     </div>
                     <div>
                         <div class="editor-buttons" style="margin-top:10px;">
@@ -492,13 +547,13 @@ export default {
                         </div>
                     </div>
                     <div>
-                        <label @drop="drop" @dragover="ondragover" class="newPost_image_borders" for="photo">
+                        <label @drop="drop" @dragover="ondragover" class="newPost_image_borders" for="photo_post">
                             <div>
                                 <i class="fa-regular fa-image"></i>
                                 <div>Выберите или перетащите картинку для поста</div>
                             </div>
                         </label>
-                        <input multiple ref="photoInput" @change="addimg" style="display:none" type="file" id="photo" accept="image/*,video/*,.gif">
+                        <input multiple ref="photoInput" @change="addimg" style="display:none" type="file" id="photo_post" accept="image/*,video/*,.gif">
                     </div>
                 </div>
 <!--                <textarea v-model="newPostText" class="newPost_text" name="" id=""></textarea>-->
@@ -536,7 +591,7 @@ export default {
                 <div class="nav_main_list">
                     <div v-for="post in posts" @click="updateEdit(post)">
                         <div class="nav_main_list_img">
-                            <img v-if="post.attachment" :src="config.storage + post.attachment" alt="Ошибка загрузки">
+                            <img v-if="post.attachments?.length > 0" :src="config.storage + post.attachments[0]" alt="Ошибка загрузки">
                             <div v-else><p>Нет изображения</p></div>
                         </div>
                         <div class="nav_main_list_info">
