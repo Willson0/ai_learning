@@ -42,6 +42,7 @@ export default {
 
             editor: null,
             editEditor: null,
+            attachments: [],
         }
     },
     async mounted () {
@@ -156,18 +157,24 @@ export default {
             document.querySelectorAll(".newPost_image>img").forEach((el) => el.src = URL.createObjectURL(files[0]));
         },
         addimg (ev) {
-            let file = ev.target.files[0];
-            if (file && file.type.startsWith("image/")) {
-                this.photo = file;
-                console.log(URL.createObjectURL(file));
-                document.querySelectorAll(".newPost_image>img").forEach((el) => el.src = URL.createObjectURL(file));
-            } else if (file && file.type.startsWith("video/")) {
-                this.photo = file;
-                const url = URL.createObjectURL(file);
-                document.querySelectorAll(".newPost_image>video").forEach((el) => {
-                    el.src = url;
-                    el.load();
-                });
+            let files = ev.target.files;
+            for (let file of files) {
+                if (file && file.type.startsWith("image/")) {
+                    this.attachments.push(file);
+                    requestAnimationFrame(() => {
+                        let el =  document.querySelectorAll(".newPost_image>div>img");
+                        el = el[el.length - 1];
+                        el.src = URL.createObjectURL(file);
+                    });
+                } else if (file && file.type.startsWith("video/")) {
+                    this.attachments.push(file);
+                    requestAnimationFrame(() => {
+                        let el = document.querySelectorAll(".newPost_image>div>video");
+                        el = el[el.length - 1];
+                        el.src = URL.createObjectURL(file);
+                        el.load();
+                    });
+                }
             }
             this.$refs.photoInput.value = "";
         },
@@ -322,6 +329,10 @@ export default {
             if (post.time_repeat) this.repeat = true;
             if (post.end_count) this.not_repeat = "count";
             else if (post.end_date) this.not_repeat = "date";
+        },
+        removeAttachment (id) {
+            console.log(id);
+            this.attachments = this.attachments.filter((a, idx) => idx !== id);
         }
     },
 }
@@ -391,11 +402,11 @@ export default {
             <div class="edit_post_main">
                 <div class="newPost">
                     <div class="newPost_groupName">Ai Моди Бот🧑‍🎓</div>
-                    {{}}
                     <div class="newPost_image">
-
-                        <img :style="confirming ? 'filter:blur(3px);' : ''" @click="confirming = true" :src="config.storage + editedPost.attachment" v-show="(editedPost.attachment || photo) && (photo?.type?.startsWith('image/') || (getFileType(editedPost.attachment) === 'image'))" alt="">
-                        <video v-show="(editedPost.attachment || photo) && (photo?.type?.startsWith('video/') || (getFileType(editedPost.attachment) === 'video'))" controls :src="config.storage + editedPost.attachment"></video>
+                        <template v-for="attach in editedPost.attachment">
+                            <img :style="confirming ? 'filter:blur(3px);' : ''" @click="confirming = true" :src="config.storage + editedPost.attachment" v-show="(editedPost.attachment || photo) && (photo?.type?.startsWith('image/') || (getFileType(editedPost.attachment) === 'image'))" alt="">
+                            <video v-show="(editedPost.attachment || photo) && (photo?.type?.startsWith('video/') || (getFileType(editedPost.attachment) === 'video'))" controls :src="config.storage + editedPost.attachment"></video>
+                        </template>
 
                         <div v-if="confirming" class="newPost_image_confirm">
                             <button @click="confirming = 0; editedPost.attachment = null; photo = null" class="newPost_button delete">Удалить</button>
@@ -483,20 +494,24 @@ export default {
             <div class="newPost">
                 <div class="newPost_groupName">Ai Моди Бот🧑‍🎓</div>
                 <div class="newPost_image">
-                    <img :style="confirming ? 'filter:blur(3px);' : ''" @click="confirming = true" :src="config.storage + editedPost.attachment" v-show="(photo) && photo.type.startsWith('image/')" alt="">
-                    <video v-show="(photo) && photo.type.startsWith('video/')" controls></video>
+                    <div v-for="(attachment, key) in attachments" class="newPost_image_item">
+                        <img :style="confirming === key ? 'filter:blur(3px);' : ''" @click="confirming = key" v-show="(attachment) && attachment.type.startsWith('image/')" alt="">
+                        <video v-show="(attachment) && attachment.type.startsWith('video/')" controls></video>
 
-                    <div v-if="confirming" class="newPost_image_confirm">
-                        <button @click="confirming = 0; photo = null" class="newPost_button delete">Удалить</button>
-                        <button @click="confirming = 0" class="newPost_button cancel">Отмена</button>
-                    </div>
-                    <label @drop="drop" @dragover="ondragover" class="newPost_image_borders" for="photo">
-                        <div>
-                            <i class="fa-regular fa-image"></i>
-                            <div>Выберите или перетащите картинку для поста</div>
+                        <div v-if="confirming === key" class="newPost_image_confirm">
+                            <button @click="confirming = null; removeAttachment(key)" class="newPost_button delete">Удалить</button>
+                            <button @click="confirming = null" class="newPost_button cancel">Отмена</button>
                         </div>
-                    </label>
-                    <input ref="photoInput" @change="addimg" style="display:none" type="file" id="photo" accept="image/*,video/*,.gif">
+                    </div>
+                    <div>
+                        <label @drop="drop" @dragover="ondragover" class="newPost_image_borders" for="photo">
+                            <div>
+                                <i class="fa-regular fa-image"></i>
+                                <div>Выберите или перетащите картинку для поста</div>
+                            </div>
+                        </label>
+                        <input multiple ref="photoInput" @change="addimg" style="display:none" type="file" id="photo" accept="image/*,video/*,.gif">
+                    </div>
                 </div>
 <!--                <textarea v-model="newPostText" class="newPost_text" name="" id=""></textarea>-->
                 <div>

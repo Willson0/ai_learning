@@ -11,11 +11,6 @@ export default {
     },
     async mounted() {
         removeLoading();
-        // document.body.style.backgroundColor = "#14141e"
-        // document.querySelectorAll(".adminnav_main_nav_main>div>p").forEach((el)=>{
-        //     el.addEventListener("mouseenter", (ev) => ev.stopPropagation());
-        // })
-
         this.styleTag = document.createElement('link');
         this.styleTag.rel = 'stylesheet';
         this.styleTag.href = new URL('@/assets/admin.css', import.meta.url).href;
@@ -91,21 +86,11 @@ export default {
             </div>
         </div>
         <div class="adminnav_buttons">
-<!--            <i class="fa-solid fa-magnifying-glass"></i>-->
-<!--            <i class="fa-solid fa-envelopes-bulk"></i>-->
             <div class="adminnav_buttons_account">
                 <img @click="showaccount()" src="https://avatars.mds.yandex.net/i?id=44ea903732525bafef17f89f82b94c625203a2e9-12314646-images-thumbs&n=13" alt="">
                 <div class="adminnav_buttons_account_menu">
                     <div class="adminnav_buttons_account_menu_main_triangle"></div>
                     <div class="adminnav_buttons_account_menu_main">
-<!--                        <div>-->
-<!--                            <div class="adminnav_buttons_account_menu_main_button">-->
-<!--                                <p>Profile</p>-->
-<!--                            </div>-->
-<!--                            <div class="adminnav_buttons_account_menu_main_button">-->
-<!--                                <p>Settings</p>-->
-<!--                            </div>-->
-<!--                        </div>-->
                         <div class="adminnav_buttons_account_menu_main_line"></div>
                         <div @click="logout()" class="adminnav_buttons_account_menu_main_button">
                             <p>Logout</p>
@@ -173,12 +158,12 @@ export default {
                 </div>
                 <div @click="$router.push('/admin/logging')">
                     <div v-if="$route.path === '/admin/logging'" class="adminnav_main_nav_main_el_point">&middot;</div>
-                    <i class="fa-solid fa-graduation-cap"></i>
+                    <i class="fa-solid fa-clock-rotate-left"></i>
                     <p>Логи</p>
                 </div>
                 <div @click="$router.push('/admin/mailing')">
                     <div v-if="$route.path === '/admin/mailing'" class="adminnav_main_nav_main_el_point">&middot;</div>
-                    <i class="fa-solid fa-graduation-cap"></i>
+                    <i class="fa-solid fa-envelopes-bulk"></i>
                     <p>Рассылка</p>
                 </div>
             </div>

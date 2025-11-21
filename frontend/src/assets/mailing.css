@@ -255,9 +255,22 @@ button {
   min-height:200px;
   height:fit-content;
   position:relative;
-  display:flex;
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(30%, 1fr));;
   overflow:hidden;
-
+  flex-direction: column;
+  gap: 6px;
+}
+.newPost_image>div {
+  position: relative;
+}
+.newPost_image>div:last-child {
+  min-height: 200px;
+}
+.newPost_image_item img {
+  width: 100%;
+  object-fit: cover;
+  height: 100%;
 }
 
 .newPost_image_borders {
@@ -397,12 +410,13 @@ button {
 .newPost_image_confirm {
   display:flex;
   flex-direction:row;
+  flex-wrap: wrap;
   position:absolute;
   top:50%;
   left:50%;
   transform:translate(-50%, -50%);
   z-index:101;
-  column-gap:10px;
+  gap:10px;
 }
 
 .newPost_image_confirm>button {
