@@ -60,12 +60,12 @@
 ## Скриншоты
 
 <p align="center">
-  <img width="752" height="1280" alt="image" src="https://github.com/user-attachments/assets/117599d2-5a83-452e-9a7c-e832914f348c" />
-  <img width="752" height="1280" alt="image" src="https://github.com/user-attachments/assets/a84e6554-a84b-47f1-9f69-f55059439a7f" />
+  <img width="48%" height="1280" alt="image" src="https://github.com/user-attachments/assets/117599d2-5a83-452e-9a7c-e832914f348c" />
+  <img width="48%" height="1280" alt="image" src="https://github.com/user-attachments/assets/a84e6554-a84b-47f1-9f69-f55059439a7f" />
 </p>
 
 <p align="center">
-  <img width="752" height="1280" alt="image" src="https://github.com/user-attachments/assets/33d06845-9471-4094-853a-92c5037cdb50" />
+  <img width="48%" height="1280" alt="image" src="https://github.com/user-attachments/assets/33d06845-9471-4094-853a-92c5037cdb50" />
 </p>
 
 ---
